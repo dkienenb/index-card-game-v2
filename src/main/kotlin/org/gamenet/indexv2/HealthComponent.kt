@@ -5,8 +5,7 @@ import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.component.MutableDataStoringComponent
 
 class HealthComponent : MutableDataStoringComponent<Int>() {
-    override fun setAttached(attached: ComponentedObject?) {
-        super.setAttached(attached)
+    override fun onAdd() {
         setHealth(attached!!.getComponent(MaxHealthComponent::class.java).getMaxHealth())
     }
 

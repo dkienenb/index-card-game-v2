@@ -1,4 +1,4 @@
-package org.gamenet.indexv2
+package org.gamenet.dkienenb.indexv2.server
 
 import org.gamenet.dkienenb.component.MutableDataStoringComponent
 
@@ -7,11 +7,9 @@ class MaxHealthComponent(maxHealth: Int) : MutableDataStoringComponent<Int>() {
         setMaxHealth(maxHealth)
     }
 
-    fun getMaxHealth(): Int {
-        return super.getValue()
-    }
+    fun getMaxHealth(): Int = super.getValue()
 
     fun setMaxHealth(maxHealth: Int) {
-        super.setValue(maxHealth)
+        value = maxHealth
     }
 }

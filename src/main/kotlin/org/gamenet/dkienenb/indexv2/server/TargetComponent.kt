@@ -1,18 +1,18 @@
-package org.gamenet.indexv2
+package org.gamenet.dkienenb.indexv2.server
 
 import org.gamenet.dkienenb.component.Component
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.component.ListStoringComponent
 
-class TargetComponent : ListStoringComponent<(ComponentedObject) -> Unit>() {
+class TargetComponent : ListStoringComponent<(ComponentedObject, Int) -> Unit>() {
 
-    fun addOnAttackEffect(onAttackEffect: (ComponentedObject) -> Unit) {
-        super.getValue().add(onAttackEffect)
+    fun addOnAttackEffect(onAttackEffect: (attacker: ComponentedObject, damage: Int) -> Unit) {
+        super.getValue().add(onAttackEffect)  
     }
 
-    fun attack() {
-        super.stream().forEach { consumer ->
-            consumer.invoke(attached)
+    fun attack(attacker: ComponentedObject, damage: Int) {
+        super.stream().forEach {
+            it(attacker, damage)
         }
         TODO("attacker parameter, reduce hp, min damage, account for defense, retaliation, damage types (such as pierce)")
     }
@@ -23,6 +23,7 @@ class TargetComponent : ListStoringComponent<(ComponentedObject) -> Unit>() {
         list.add(DefenseComponent::class.java)
         list.add(PurchasableComponent::class.java)
         list.add(TagComponent::class.java)
+        list.add(NameComponent::class.java)
         return list
     }
 }

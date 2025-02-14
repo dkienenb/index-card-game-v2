@@ -1,17 +1,15 @@
-package org.gamenet.indexv2
+package org.gamenet.dkienenb.indexv2.server
 
 import org.gamenet.dkienenb.component.MutableDataStoringComponent
 
 class MinHealthComponent : MutableDataStoringComponent<Int>() {
     init {
-        super.setValue(0)
+        setValue(0)
     }
 
     fun setMinHealth(health: Int) {
-        super.setValue(health)
+        setValue(health)
     }
 
-    fun getMinHealth(): Int {
-        return super.getValue()
-    }
+    fun getMinHealth(): Int = super.getValue()
 }

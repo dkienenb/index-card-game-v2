@@ -1,4 +1,4 @@
-package org.gamenet.indexv2
+package org.gamenet.dkienenb.indexv2.server
 
 import org.gamenet.dkienenb.component.MutableDataStoringComponent
 
@@ -7,9 +7,7 @@ open class PurchasableComponent(cost: Int) : MutableDataStoringComponent<Int>() 
         super.setValue(cost)
     }
 
-    fun getCost(): Int {
-        return super.getValue()
-    }
+    fun getCost(): Int = super.getValue()
 
     fun setCost(cost: Int) {
         super.setValue(cost)

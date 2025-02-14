@@ -1,4 +1,4 @@
-package org.gamenet.indexv2
+package org.gamenet.dkienenb.indexv2.server
 
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.component.MapStoringComponent

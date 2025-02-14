@@ -1,7 +1,6 @@
-package org.gamenet.indexv2
+package org.gamenet.dkienenb.indexv2.server
 
 import org.gamenet.dkienenb.component.Component
-import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.component.MutableDataStoringComponent
 
 class HealthComponent : MutableDataStoringComponent<Int>() {
@@ -9,14 +8,12 @@ class HealthComponent : MutableDataStoringComponent<Int>() {
         setHealth(attached!!.getComponent(MaxHealthComponent::class.java).getMaxHealth())
     }
 
-    fun getHealth(): Int {
-        return super.getValue()
-    }
+    fun getHealth(): Int = super.getValue()
 
     fun setHealth(health: Int) {
         var newHealth = health
         val minHealth = attached.getComponent(MinHealthComponent::class.java).getMinHealth()
-        if (health < minHealth) {
+        if (health <= minHealth) {
             attached.getComponent(MortalComponent::class.java).die()
             newHealth = minHealth
         }
@@ -35,7 +32,7 @@ class HealthComponent : MutableDataStoringComponent<Int>() {
         val list = super.getDependencies()
         list.add(MinHealthComponent::class.java)
         list.add(MaxHealthComponent::class.java)
-        list.add(TargetComponent::class.java)
+        list.add(MortalComponent::class.java)
         return list
     }
 }

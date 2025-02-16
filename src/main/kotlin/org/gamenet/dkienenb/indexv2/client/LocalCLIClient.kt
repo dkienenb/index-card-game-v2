@@ -6,9 +6,7 @@ class LocalCLIClient : Client() {
 
     private val scanner = Scanner(System.`in`)
 
-    private fun <T> choice(label: String, things: List<T>): T {
-        return choiceButWithAPrompt("Choose a $label:", things)
-    }
+    private fun <T> choice(label: String, things: List<T>): T = choiceButWithAPrompt("Choose a $label:", things)
 
     private fun <T> choiceButWithAPrompt(prompt: String, things: List<T>): T {
         while (true) {
@@ -39,4 +37,6 @@ class LocalCLIClient : Client() {
 
     override fun makeChoice(choiceLabel: String, options: Set<String>): String =
         choice(choiceLabel, options.toList())
+
+    override fun getName(): String = "localhost"
 }

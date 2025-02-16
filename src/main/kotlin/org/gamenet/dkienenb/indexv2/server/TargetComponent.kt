@@ -10,11 +10,17 @@ class TargetComponent : ListStoringComponent<(ComponentedObject, Int) -> Unit>()
         super.getValue().add(onAttackEffect)  
     }
 
-    fun attack(attacker: ComponentedObject, damage: Int) {
+    fun attack(attacker: ComponentedObject, damage: Int, ignoreDefense: Boolean) {
         super.stream().forEach {
             it(attacker, damage)
         }
-        TODO("attacker parameter, reduce hp, min damage, account for defense, retaliation, damage types (such as pierce)")
+        val actualDamage: Int = if (ignoreDefense) {
+            damage
+        } else {
+            damage - attached.getComponent(DefenseComponent::class.java).getDefense()
+        }
+        attached.getComponent(HealthComponent::class.java).changeHealth(-actualDamage)
+        // TODO retaliation
     }
 
     override fun getDependencies(): MutableList<Class<out Component>> {

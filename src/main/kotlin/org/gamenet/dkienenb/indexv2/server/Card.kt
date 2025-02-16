@@ -2,10 +2,12 @@ package org.gamenet.dkienenb.indexv2.server
 
 import org.gamenet.dkienenb.component.ComponentedObject
 
-class Card(name: String, cost: Int) : ComponentedObject() {
+abstract class Card(name: String, cost: Int) : ComponentedObject() {
     init {
-        addComponent(PurchasableComponent(cost))
-        addComponent(NameComponent(name))
-        addComponent(CardComponent())
+        this.addComponent(PurchasableComponent(cost))
+        this.addComponent(NameComponent(name))
+        this.addComponent(CardComponent())
     }
+
+    abstract fun play(player: Player) : CardPlayResultLocation
 }

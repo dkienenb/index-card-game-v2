@@ -3,22 +3,30 @@ package org.gamenet.dkienenb.indexv2.server
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.component.ListStoringComponent
 
-class MortalComponent(private var living: Boolean = true) : ListStoringComponent<(ComponentedObject) -> Unit>() {
+class MortalComponent : ListStoringComponent<(ComponentedObject) -> Unit>() {
+
+    private var living: Boolean = true
 
     fun addDeathEffect(deathEffect: (ComponentedObject) -> Unit) {
-        super.getValue().add(deathEffect)
+        value.add(deathEffect)
     }
 
     fun die() {
         if (living) {
-            super.stream().forEach { consumer ->
+            stream().forEach { consumer ->
                 consumer.invoke(attached)
             }
             living = false
         }
     }
 
-    fun isLiving(): Boolean {
-        return living
+    fun revive() {
+        living = true
     }
+
+    fun clearOnDeathEffects() {
+        value.clear()
+    }
+
+    fun isLiving(): Boolean = living
 }

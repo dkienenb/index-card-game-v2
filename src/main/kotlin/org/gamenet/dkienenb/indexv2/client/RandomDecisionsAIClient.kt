@@ -1,6 +1,5 @@
 package org.gamenet.dkienenb.indexv2.client
 
-import org.gamenet.dkienenb.indexv2.server.NameComponent
 import kotlin.random.Random
 
 class RandomDecisionsAIClient(val displayName: String) : Client() {

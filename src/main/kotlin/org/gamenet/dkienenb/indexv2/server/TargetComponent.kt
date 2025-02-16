@@ -21,14 +21,16 @@ class TargetComponent : ListStoringComponent<(ComponentedObject, Int) -> Unit>()
         }
         attached.getComponent(HealthComponent::class.java).changeHealth(-actualDamage)
         if (hasRetaliation) {
-            if (attached.hasComponent(AttackerComponent::class.java)) {
-                if (attacker.hasComponent(TargetComponent::class.java)) {
-                    attached.getComponent(AttackerComponent::class.java).attack(
-                        attacker,
-                        false,
-                        defendingPlayer,
-                        attackingPlayer
-                    )
+            if (attached.getComponent(MortalComponent::class.java).isLiving()) {
+                if (attached.hasComponent(AttackerComponent::class.java)) {
+                    if (attacker.hasComponent(TargetComponent::class.java)) {
+                        attached.getComponent(AttackerComponent::class.java).attack(
+                            attacker,
+                            false,
+                            defendingPlayer,
+                            attackingPlayer
+                        )
+                    }
                 }
             }
         }

@@ -42,9 +42,7 @@ class Player(var client: Client) {
         val attackedPlayer = selectOtherPlayer(players)
         val targets = attackedPlayer.getMeleeTargets()
         val selectedTarget = clientChoice("target", targets) {it.getComponent(NameComponent::class.java).getName()}
-        attackerComponent.attack(selectedTarget)
-        Main.sendAllExcept("${this.client.getName()}'s ${attacker.getComponent(NameComponent::class.java).getName()} attacked" +
-                " ${attackedPlayer.client.getName()}'s ${selectedTarget.getComponent(NameComponent::class.java).getName()}.", null)
+        attackerComponent.attack(selectedTarget, !attackerComponent.ranged, this, attackedPlayer)
         // TODO ranged attackers
     }
 

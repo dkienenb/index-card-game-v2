@@ -21,7 +21,10 @@ class AttackerComponent(damage: Int, var ranged: Boolean) : MutableDataStoringCo
         return list
     }
 
-    fun attack(target: ComponentedObject) {
-        target.getComponent(TargetComponent::class.java).attack(attached, getDamage(), attached.hasComponent(AttacksIgnoreDefenseComponent::class.java))
+    fun attack(target: ComponentedObject, hasRetaliation: Boolean, owner: Player, attackedPlayer: Player) {
+        Main.sendAllExcept("${owner.client.getName()}'s ${attached.getComponent(NameComponent::class.java).getName()} attacked" +
+                " ${attackedPlayer.client.getName()}'s ${target.getComponent(NameComponent::class.java).getName()}.", null)
+        target.getComponent(TargetComponent::class.java).attack(attached, getDamage(), attached.hasComponent(AttacksIgnoreDefenseComponent::class.java), hasRetaliation, owner, attackedPlayer)
     }
+
 }

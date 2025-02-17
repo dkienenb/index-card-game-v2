@@ -4,7 +4,7 @@ import org.gamenet.dkienenb.component.Component
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.component.ListStoringComponent
 
-class DeckComponent(type: DeckType, player: Player?) : ListStoringComponent<Card>() {
+class DeckComponent(type: DeckType, player: Player) : ListStoringComponent<Card>() {
 
     val discardPile: MutableList<Card> = ArrayList()
 
@@ -22,19 +22,24 @@ class DeckComponent(type: DeckType, player: Player?) : ListStoringComponent<Card
     override fun onAdd() {
         val cardCount = value.size
         attached.getComponent(MaxHealthComponent::class.java).setMaxHealth(cardCount)
-        attached.getComponent(TargetComponent::class.java).addOnAttackEffect{ attacker: ComponentedObject, damage: Int ->
-            val player = attacker.getComponent(OriginalPlayerOwnedComponent::class.java).getPlayer()
-            for (i in 1..damage) {
-                if (value.isNotEmpty()) {
-                    val card = giveCard(player)
-                    player.client.displayMessage("Received ${card.getComponent(NameComponent::class.java).getName()} from" +
-                            " ${attached.getComponent(NameComponent::class.java).getName()}.")
-                } else {
-                    player.client.displayMessage("Overkilled ${attached.getComponent(NameComponent::class.java).getName()}! " +
-                            "Sadly, cards do not come from thin air.")
+        attached.getComponent(TargetComponent::class.java)
+            .addOnAttackEffect { attacker: ComponentedObject, damage: Int ->
+                val player = attacker.getComponent(OriginalPlayerOwnedComponent::class.java).getPlayer()
+                for (i in 1..damage) {
+                    if (value.isNotEmpty()) {
+                        val card = giveCard(player)
+                        player.client.displayMessage(
+                            "Received ${card.getComponent(NameComponent::class.java).getName()} from" +
+                                    " ${attached.getComponent(NameComponent::class.java).getName()}."
+                        )
+                    } else {
+                        player.client.displayMessage(
+                            "Overkilled ${attached.getComponent(NameComponent::class.java).getName()}! " +
+                                    "Sadly, cards do not come from thin air."
+                        )
+                    }
                 }
             }
-        }
         attached.getComponent(MortalComponent::class.java).addDeathEffect {
             val player = it.getComponent(OriginalPlayerOwnedComponent::class.java).getPlayer()
             player.client.displayMessage("Your deck is out of cards. You lose!")
@@ -54,7 +59,7 @@ class DeckComponent(type: DeckType, player: Player?) : ListStoringComponent<Card
         return firstCard
     }
 
-    private fun giveCard(player: Player) : Card {
+    private fun giveCard(player: Player): Card {
         val card = removeFirstCard()
         player.addCard(card)
         return card

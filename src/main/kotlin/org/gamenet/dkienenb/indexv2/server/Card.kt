@@ -9,5 +9,5 @@ abstract class Card(name: String, cost: Int) : ComponentedObject() {
         this.addComponent(CardComponent())
     }
 
-    abstract fun play(player: Player) : CardPlayResultLocation
+    abstract fun play(player: Player): CardPlayResultLocation
 }

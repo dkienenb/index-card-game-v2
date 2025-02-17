@@ -10,20 +10,24 @@ import kotlin.random.Random
 
 object Main {
 
-    private val clientSendAllEventBus : EventBus = EventBus()
+    private val clientSendAllEventBus: EventBus = EventBus()
 
     fun sendAllExcept(message: String, exception: Player?) {
         clientSendAllEventBus.addEvent(MultiSendEvent(message, exception))
         clientSendAllEventBus.callNextEvent()
     }
 
-    private fun prepare(client: Client) : Client {
-        clientSendAllEventBus.addListener(EventListener(MultiSendEvent::class.java, EventListenerPriorityLevel.REACT) { event ->
-            val multiSendEvent = event as MultiSendEvent
-            if(client != multiSendEvent.exception?.client) {
-                client.displayMessage(multiSendEvent.message)
-            }
-        })
+    private fun prepare(client: Client): Client {
+        clientSendAllEventBus.addListener(
+            EventListener(
+                MultiSendEvent::class.java,
+                EventListenerPriorityLevel.REACT
+            ) { event ->
+                val multiSendEvent = event as MultiSendEvent
+                if (client != multiSendEvent.exception?.client) {
+                    client.displayMessage(multiSendEvent.message)
+                }
+            })
         return client
     }
 
@@ -38,7 +42,7 @@ object Main {
         while (players.size > 1) {
             currentFirstPlayer = nextPlayer(players, currentFirstPlayer)
             roundOfTurns(currentFirstPlayer, players)
-            players = players.filterNot {it.isOut()}
+            players = players.filterNot { it.isOut() }
         }
     }
 
@@ -54,12 +58,14 @@ object Main {
 
     private fun roundOfTurns(firstPlayer: Player, players: List<Player>) {
         val money = Random.nextInt(1, 7)
-        players.forEach {it.unspentMoney = money}
+        players.forEach { it.unspentMoney = money }
         sendAllExcept("Money die result is $money", null)
         var nextPlayer = firstPlayer
         do {
-            nextPlayer.takeTurn(players)
+            if (!nextPlayer.isOut()) {
+                nextPlayer.takeTurn(players)
+            }
             nextPlayer = nextPlayer(players, nextPlayer)
-        } while ((nextPlayer != firstPlayer) && (players.filterNot{it.isOut()}.size > 1))
+        } while ((nextPlayer != firstPlayer) && (players.filterNot { it.isOut() }.size > 1))
     }
 }

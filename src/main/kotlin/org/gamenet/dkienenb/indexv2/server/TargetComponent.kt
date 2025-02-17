@@ -7,10 +7,17 @@ import org.gamenet.dkienenb.component.ListStoringComponent
 class TargetComponent : ListStoringComponent<(ComponentedObject, Int) -> Unit>() {
 
     fun addOnAttackEffect(onAttackEffect: (attacker: ComponentedObject, damage: Int) -> Unit) {
-        super.getValue().add(onAttackEffect)  
+        super.getValue().add(onAttackEffect)
     }
 
-    fun attack(attacker: ComponentedObject, damage: Int, ignoreDefense: Boolean, hasRetaliation: Boolean, attackingPlayer: Player, defendingPlayer: Player) {
+    fun attack(
+        attacker: ComponentedObject,
+        damage: Int,
+        ignoreDefense: Boolean,
+        hasRetaliation: Boolean,
+        attackingPlayer: Player,
+        defendingPlayer: Player
+    ) {
         super.stream().forEach {
             it(attacker, damage)
         }
@@ -19,6 +26,10 @@ class TargetComponent : ListStoringComponent<(ComponentedObject, Int) -> Unit>()
         } else {
             damage - attached.getComponent(DefenseComponent::class.java).getDefense()
         }
+        Main.sendAllExcept(
+            "${attached.getComponent(NameComponent::class.java).getName()} took $actualDamage damage.",
+            null
+        )
         attached.getComponent(HealthComponent::class.java).changeHealth(-actualDamage)
         if (hasRetaliation) {
             if (attached.getComponent(MortalComponent::class.java).isLiving()) {
@@ -45,4 +56,5 @@ class TargetComponent : ListStoringComponent<(ComponentedObject, Int) -> Unit>()
         list.add(NameComponent::class.java)
         return list
     }
+
 }

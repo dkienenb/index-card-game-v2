@@ -14,7 +14,7 @@ class TagComponent : MapStoringComponent<Tag, Int>() {
         put(tag, currentCount - 1)
     }
 
-    fun doPerTag(tag: Tag, action:(ComponentedObject) -> Unit) {
+    fun doPerTag(tag: Tag, action: (ComponentedObject) -> Unit) {
         val currentCount = value.getOrDefault(tag, 0)
         for (i: Int in 0 until currentCount) {
             action(attached)

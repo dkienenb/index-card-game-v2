@@ -31,7 +31,7 @@ class LocalCLIClient : Client() {
     }
 
     override fun checkIfPlayerWants(message: String, additionalData: Map<String, String>): Boolean {
-        additionalData.forEach { displayMessage( "${it.key} is ${it.value}.") }
+        additionalData.forEach { displayMessage("${it.key} is ${it.value}.") }
         return choiceButWithAPrompt("Do you want $message?", listOf("Yes", "No")) == "Yes"
     }
 

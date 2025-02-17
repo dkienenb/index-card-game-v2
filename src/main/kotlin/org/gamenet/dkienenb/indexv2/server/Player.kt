@@ -13,8 +13,8 @@ class Player(var client: Client) {
     val battleLine = mutableListOf<ComponentedObject>()
     var unspentMoney: Int = 0
 
-    fun <T> clientChoice(choiceLabel: String, choices: List<T>, stringMapper:(T) -> String) : T {
-        val labelToThingMap = choices.associateBy (stringMapper)
+    fun <T> clientChoice(choiceLabel: String, choices: List<T>, stringMapper: (T) -> String): T {
+        val labelToThingMap = choices.associateBy(stringMapper)
         val chosen = client.makeChoice(choiceLabel, labelToThingMap.keys)
         return labelToThingMap.getValue(chosen)
     }
@@ -29,21 +29,52 @@ class Player(var client: Client) {
         Main.sendAllExcept("Turn begin: ${client.getName()}", this)
         drawCards()
         playCards()
+        // TODO not attack phase first turn
         attackPhase(players)
-        // retreat cards
+        // TODO retreat cards
         Main.sendAllExcept("Turn end: ${client.getName()}", this)
     }
 
     private fun attackPhase(players: List<Player>) {
         if (isOut()) return
         if (battleLine.isEmpty()) return
-        val attacker = battleLine[0]
-        val attackerComponent = attacker.getComponent(AttackerComponent::class.java)
+        val meleeAttacker = battleLine[0]
+        attackWith(meleeAttacker, players)
+        battleLine
+            .asSequence()
+            .filter { it != meleeAttacker }
+            .filter { it.getComponent(AttackerComponent::class.java).ranged }
+            .forEach { attackWith(it, players) }
+    }
+
+    private fun attackWith(
+        fighter: ComponentedObject,
+        players: List<Player>
+    ) {
+        client.displayMessage("Attacking with ${fighter.getComponent(NameComponent::class.java).getName()}")
+        val attackerComponent = fighter.getComponent(AttackerComponent::class.java)
         val attackedPlayer = selectOtherPlayer(players)
-        val targets = attackedPlayer.getMeleeTargets()
-        val selectedTarget = clientChoice("target", targets) {it.getComponent(NameComponent::class.java).getName()}
-        attackerComponent.attack(selectedTarget, !attackerComponent.ranged, this, attackedPlayer)
-        // TODO ranged attackers
+        val targets = if (attackerComponent.ranged) {
+            attackedPlayer.getRangedTargets()
+        } else {
+            attackedPlayer.getMeleeTargets()
+        }
+        val selectedTargetRanged =
+            clientChoice("target", targets) { it.getComponent(NameComponent::class.java).getName() }
+        attackerComponent.attack(selectedTargetRanged, !attackerComponent.ranged, this, attackedPlayer)
+    }
+
+    private fun getRangedTargets(): List<ComponentedObject> {
+        val list = mutableListOf<ComponentedObject>()
+        if (battleLine.isNotEmpty()) {
+            for (fighter in battleLine) {
+                list.add(fighter)
+                if (fighter.hasComponent(BlocksRangedAttacksComponent::class.java)) {
+                    break
+                }
+            }
+        }
+        return buildings.plus(deck)
     }
 
     private fun getMeleeTargets(): List<ComponentedObject> {
@@ -60,7 +91,7 @@ class Player(var client: Client) {
     }
 
     private fun selectPlayer(players: List<Player>): Player =
-        clientChoice("attack target", players) {it.client.getName()}
+        clientChoice("attack target", players.filter { !it.isOut() }) { it.client.getName() }
 
     private fun playCards() {
         while (true) {
@@ -75,10 +106,13 @@ class Player(var client: Client) {
         val cost = card.getComponent(PurchasableComponent::class.java).getCost()
         if (unspentMoney >= cost) {
             unspentMoney -= cost
-            Main.sendAllExcept("${client.getName()} plays a ${card.getComponent(NameComponent::class.java).getName()}.", this)
+            Main.sendAllExcept(
+                "${client.getName()} plays a ${card.getComponent(NameComponent::class.java).getName()}.",
+                this
+            )
             val cardNewLocation = card.play(this)
             hand.remove(card)
-            when(cardNewLocation) {
+            when (cardNewLocation) {
                 CardPlayResultLocation.DISCARD -> deck.getComponent(DeckComponent::class.java).discardCard(card)
                 CardPlayResultLocation.BATTLE_PLAYER_CHOICE -> TODO()
                 CardPlayResultLocation.BATTLE_BACK -> battleLine.add(card)
@@ -93,7 +127,12 @@ class Player(var client: Client) {
     }
 
     private fun selectOneCardToPlay(): Card? {
-        val cardToNameMap = hand.associateBy { "(${it.getComponent(PurchasableComponent::class.java).getCost()}) ${it.getComponent(NameComponent::class.java).getName()}" }.plus("No card" to null)
+        client.displayMessage("Money remaining: $unspentMoney")
+        val cardToNameMap = hand.associateBy {
+            "(${it.getComponent(PurchasableComponent::class.java).getCost()}) ${
+                it.getComponent(NameComponent::class.java).getName()
+            }"
+        }.plus("No card" to null)
         val chosen = client.makeChoice("card to play", cardToNameMap.keys)
         return cardToNameMap[chosen]
     }
@@ -101,7 +140,11 @@ class Player(var client: Client) {
     private fun drawCards() {
         while (hand.size < NORMAL_DRAW_BANNED_AT) {
             val deckComponent = deck.getComponent(DeckComponent::class.java)
-            if (client.checkIfPlayerWants("another card", mapOf("deckSize" to "${deck.getComponent(HealthComponent::class.java).getHealth()}"))) {
+            if (client.checkIfPlayerWants(
+                    "another card",
+                    mapOf("deckSize" to "${deck.getComponent(HealthComponent::class.java).getHealth()}")
+                )
+            ) {
                 Main.sendAllExcept("${client.getName()} draws a card.", this)
                 val card = deckComponent.drawCard()
                 client.displayMessage("You drew a ${card.getComponent(NameComponent::class.java).getName()}.")

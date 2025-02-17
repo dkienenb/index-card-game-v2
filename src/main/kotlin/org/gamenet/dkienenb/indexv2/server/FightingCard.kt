@@ -22,18 +22,20 @@ class FightingCard(
         tags.forEach { tagComponent.tag(it) }
         addComponent(tagComponent)
         addComponent(TargetComponent())
+        getComponent(MortalComponent::class.java).addDeathEffect {
+            Main.sendAllExcept("${it.getComponent(NameComponent::class.java).getName()} is no more.", null)
+        }
     }
 
     override fun play(player: Player): CardPlayResultLocation {
         getComponent(HealthComponent::class.java).setHealth(getComponent(MaxHealthComponent::class.java).getMaxHealth())
-        getComponent(MortalComponent::class.java).clearOnDeathEffects()
         getComponent(MortalComponent::class.java).revive()
+        if (hasComponent(FlyingComponent::class.java)) {
+            return CardPlayResultLocation.BATTLE_PLAYER_CHOICE
+        }
         getComponent(MortalComponent::class.java).addDeathEffect {
             player.deck.getComponent(DeckComponent::class.java).discardCard(it as Card)
             player.removeFromPlay(it)
-        }
-        if (hasComponent(FlyingComponent::class.java)) {
-            return CardPlayResultLocation.BATTLE_PLAYER_CHOICE
         }
         return CardPlayResultLocation.BATTLE_BACK
     }

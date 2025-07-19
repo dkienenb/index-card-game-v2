@@ -1,0 +1,60 @@
+// (cost/hp/attack)
+
+///////////////
+// walls
+///////////////
+
+// fighting
+1/2/0 "wall" blocks ranged
+2/3/0 "wall" blocks ranged
+3/4/0 "wall" blocks ranged
+4/5/0 "wall" blocks ranged
+5/6/0 "wall" blocks ranged
+6/5/0 "wall" blocks ranged, 1 def
+(we need better names)
+
+// building
+3/1 "mason's guild" walls cost 1 less
+
+///////////////
+// archers
+///////////////
+
+// fighting
+3/2/1 "archer" ranged [x2]
+5/2/2 "heavy archer" ranged, ignores armor
+7/2/1 "marksman" attacks once per unspent $ (0 times if all money spent)
+
+// building
+4/1 "archer's guild" demolish this at any time to pull wanted ranged units from discard into hand (upon reflection, change this to all ranged and it triggers after the draw phase only)
+
+// one shot
+1 "one shot" deal 1 damage to a fighting card or building, ignoring defense
+
+///////////////
+// money
+///////////////
+
+// building
+?/? "casino" roll for values for both each turn until played, may reroll money die
+5/1 "bank" +$1/turn [x2]
+
+// one shot
+? "gambler" roll for values each turn until played, free if casino in play, play the top card of your deck for free
+1 "sale" you may play a card for half cost rounded up
+3 "invest" +$2 next turn
+5 "I know a guy" play a card costing up to 6
+
+///////////////
+// other
+///////////////
+
+// fighting
+6/2/3 "cat" may move in front of as many cards with 0 dmg as wanted at the start of the attack phase, attacks again after killing something costing 2 or less
+6/2/1 "wizard" at the end of each of your turns, each player draws a card, then you may topdeck a card
+
+// building
+5/1 "aviator's guild" flying to all fighting cards
+
+// one shot
+6 "master theif" put a card from any player's discard pile into your hand

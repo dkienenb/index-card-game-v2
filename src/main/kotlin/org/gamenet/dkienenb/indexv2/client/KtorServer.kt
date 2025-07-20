@@ -142,7 +142,7 @@ class KtorServer {
                                 label {
                                     +"Name: "
                                     input(type = InputType.text, name = "username") {
-                                        value = "Enter username"
+                                        value = ""
                                     }
                                 }
                                 button(type = ButtonType.submit) { +"Submit" }

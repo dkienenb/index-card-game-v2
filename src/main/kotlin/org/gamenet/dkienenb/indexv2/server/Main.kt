@@ -3,13 +3,12 @@ package org.gamenet.dkienenb.indexv2.server
 import org.gamenet.dkienenb.event.EventBus
 import org.gamenet.dkienenb.event.EventListener
 import org.gamenet.dkienenb.event.EventListenerPriorityLevel
-import org.gamenet.dkienenb.indexv2.client.Client
-import org.gamenet.dkienenb.indexv2.client.LocalCLIClient
-import org.gamenet.dkienenb.indexv2.client.RandomDecisionsAIClient
+import org.gamenet.dkienenb.indexv2.client.*
 import kotlin.random.Random
 
 object Main {
 
+    private val ktorServer = KtorServer()
     private val clientSendAllEventBus: EventBus = EventBus()
 
     fun sendAllExcept(message: String, exception: Player?) {
@@ -34,9 +33,10 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
         var players = listOf(
+            Player(prepare(ktorServer.addClient("Ollieve"))),
             Player(prepare(LocalCLIClient())),
             Player(prepare(RandomDecisionsAIClient("BillyBob"))),
-            Player(prepare(RandomDecisionsAIClient("Hal")))
+            Player(prepare(RandomDecisionsAIClient("Hal"))),
         )
         var currentFirstPlayer = players.random()
         while (players.size > 1) {

@@ -28,7 +28,7 @@ class AttackerComponent(damage: Int, var ranged: Boolean) : MutableDataStoringCo
                         target.getComponent(NameComponent::class.java).getName()
                     }.", null
         )
-        target.getComponent(TargetComponent::class.java).attack(
+        target.getComponent(TargetComponent::class.java).receiveAttack(
             attached,
             getDamage(),
             attached.hasComponent(AttacksIgnoreDefenseComponent::class.java),

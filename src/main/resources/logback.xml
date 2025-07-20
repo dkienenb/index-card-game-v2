@@ -1,0 +1,18 @@
+<configuration>
+
+    <!-- Mute absolutely everything -->
+    <root level="OFF">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <!-- Also be explicit about Ktor/Netty -->
+    <logger name="io.ktor.server" level="OFF"/>
+    <logger name="io.netty"      level="OFF"/>
+    <logger name="org.eclipse.jetty" level="OFF"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+</configuration>

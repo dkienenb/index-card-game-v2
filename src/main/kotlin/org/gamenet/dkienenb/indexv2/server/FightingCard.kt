@@ -5,8 +5,8 @@ class FightingCard(
     cost: Int,
     health: Int,
     damage: Int,
-    defense: Int,
-    ranged: Boolean,
+    defense: Int = 0,
+    ranged: Boolean = false,
     player: Player?,
     vararg tags: Tag
 ) : Card(name, cost) {

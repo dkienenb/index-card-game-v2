@@ -14,6 +14,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>2.1.10</kotlin.version>
         <ktor.version>3.2.2</ktor.version>
+        <kotlinx.html.version>0.12.0</kotlinx.html.version>
+        <kotlinx.serialization.version>1.9.0</kotlinx.serialization.version>
     </properties>
 
     <dependencies>
@@ -34,27 +36,81 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- SLF4J API -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version>
+        </dependency>
+
+        <!-- Logback binding for SLF4J -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.18</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Ktor core -->
         <dependency>
             <groupId>io.ktor</groupId>
             <artifactId>ktor-server-core-jvm</artifactId>
             <version>${ktor.version}</version>
         </dependency>
+
+        <!-- Ktor Html builder -->
         <dependency>
             <groupId>io.ktor</groupId>
-            <artifactId>ktor-server-websockets-jvm</artifactId>
+            <artifactId>ktor-server-html-builder-jvm</artifactId>
             <version>${ktor.version}</version>
         </dependency>
+
+        <!-- Ktor Netty engine -->
         <dependency>
             <groupId>io.ktor</groupId>
             <artifactId>ktor-server-netty-jvm</artifactId>
             <version>${ktor.version}</version>
         </dependency>
+
+        <!-- WebSockets support -->
         <dependency>
             <groupId>io.ktor</groupId>
-            <artifactId>ktor-server-config-yaml-jvm</artifactId>
+            <artifactId>ktor-server-websockets-jvm</artifactId>
             <version>${ktor.version}</version>
         </dependency>
 
+        <!-- Content-Negotiation -->
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-content-negotiation-jvm</artifactId>
+            <version>${ktor.version}</version>
+        </dependency>
+
+        <!-- Ktor YAML config support -->
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-config-yaml</artifactId>
+            <version>${ktor.version}</version>
+        </dependency>
+        <!-- Ktor Sessions -->
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-server-sessions-jvm</artifactId>
+            <version>${ktor.version}</version>
+        </dependency>
+        <!-- Kotlinx HTML -->
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-html-jvm</artifactId>
+            <version>${kotlinx.html.version}</version>
+        </dependency>
+        <!-- Kotlinx‑serialization JSON -->
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json-jvm</artifactId>
+            <version>${kotlinx.serialization.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -81,7 +137,11 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
                     <jvmTarget>${maven.compiler.target}</jvmTarget>
+                    <apiVersion>1.8</apiVersion>
                 </configuration>
             </plugin>
             <plugin>

@@ -10,7 +10,7 @@ class TargetComponent : ListStoringComponent<(ComponentedObject, Int) -> Unit>()
         super.getValue().add(onAttackEffect)
     }
 
-    fun attack(
+    fun receiveAttack(
         attacker: ComponentedObject,
         damage: Int,
         ignoreDefense: Boolean,
@@ -38,8 +38,8 @@ class TargetComponent : ListStoringComponent<(ComponentedObject, Int) -> Unit>()
                         attached.getComponent(AttackerComponent::class.java).attack(
                             attacker,
                             false,
-                            defendingPlayer,
-                            attackingPlayer
+                            owner = defendingPlayer,
+                            attackedPlayer = attackingPlayer
                         )
                     }
                 }

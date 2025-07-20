@@ -20,7 +20,7 @@ class Player(var client: Client) {
     }
 
     private fun askClientForDeckType(): DeckType {
-        val chosen = clientChoice("deck type", DeckType.entries) { it.typeName }
+        val chosen = clientChoice("deck type", DeckType.values().toList()) { it.typeName }
         Main.sendAllExcept("${this.client.getName()} chose deck type ${chosen.typeName}", this)
         return chosen
     }
@@ -73,8 +73,10 @@ class Player(var client: Client) {
                     break
                 }
             }
+        } else {
+            list.addAll(buildings.plus(deck))
         }
-        return buildings.plus(deck)
+        return list
     }
 
     private fun getMeleeTargets(): List<ComponentedObject> {

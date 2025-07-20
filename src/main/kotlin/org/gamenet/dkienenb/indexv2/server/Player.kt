@@ -2,13 +2,14 @@ package org.gamenet.dkienenb.indexv2.server
 
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.indexv2.client.Client
+import org.gamenet.dkienenb.indexv2.client.message.*
 
 private const val NORMAL_DRAW_BANNED_AT = 10
 
-class Player(var client: Client) {
+class Player(val client: Client, val id: Int) {
 
     val deck = Deck(this, askClientForDeckType())
-    private val hand = mutableListOf<Card>()
+    val hand = mutableListOf<Card>()
     val buildings = mutableListOf<ComponentedObject>()
     val battleLine = mutableListOf<ComponentedObject>()
     var unspentMoney: Int = 0
@@ -19,14 +20,12 @@ class Player(var client: Client) {
         return labelToThingMap.getValue(chosen)
     }
 
-    private fun askClientForDeckType(): DeckType {
-        val chosen = clientChoice("deck type", DeckType.values().toList()) { it.typeName }
-        Main.sendAllExcept("${this.client.getName()} chose deck type ${chosen.typeName}", this)
-        return chosen
-    }
+    private fun askClientForDeckType(): DeckType =
+        clientChoice("deck type", DeckType.values().toList()) { it.typeName }
 
     fun takeTurn(players: List<Player>) {
         Main.sendAllExcept("Turn begin: ${client.getName()}", this)
+        client.displayMessage(MoneyRemainderMessage(unspentMoney))
         drawCards()
         playCards()
         // TODO not attack phase first turn
@@ -51,17 +50,23 @@ class Player(var client: Client) {
         fighter: ComponentedObject,
         players: List<Player>
     ) {
-        client.displayMessage("Attacking with ${fighter.getComponent(NameComponent::class.java).getName()}")
-        val attackerComponent = fighter.getComponent(AttackerComponent::class.java)
-        val attackedPlayer = selectOtherPlayer(players)
-        val targets = if (attackerComponent.ranged) {
-            attackedPlayer.getRangedTargets()
-        } else {
-            attackedPlayer.getMeleeTargets()
+        if (players.any { !it.isOut() }) {
+            if (client.checkIfPlayerWants(YesOrNoQuestionType.TO_ATTACK)) {
+                val attackerComponent = fighter.getComponent(AttackerComponent::class.java)
+                val attackedPlayer = selectOtherPlayer(players)
+                val targets = if (attackerComponent.ranged) {
+                    attackedPlayer.getRangedTargets()
+                } else {
+                    attackedPlayer.getMeleeTargets()
+                }
+                val selectedTargetRanged =
+                    clientChoice(
+                        "target for ${fighter.getComponent(NameComponent::class.java).getName()}",
+                        targets
+                    ) { it.getComponent(NameComponent::class.java).getName() }
+                attackerComponent.attack(selectedTargetRanged, !attackerComponent.ranged, this, attackedPlayer)
+            }
         }
-        val selectedTargetRanged =
-            clientChoice("target", targets) { it.getComponent(NameComponent::class.java).getName() }
-        attackerComponent.attack(selectedTargetRanged, !attackerComponent.ranged, this, attackedPlayer)
     }
 
     private fun getRangedTargets(): List<ComponentedObject> {
@@ -108,8 +113,13 @@ class Player(var client: Client) {
         val cost = card.getComponent(PurchasableComponent::class.java).getCost()
         if (unspentMoney >= cost) {
             unspentMoney -= cost
+            val uuid = card.getComponent(CardIdComponent::class.java).getId()
+            val name = card.getComponent(NameComponent::class.java).getName()
+            val health = card.getComponent(HealthComponent::class.java).getHealth()
+            val damage = card.getComponent(AttackerComponent::class.java).getDamage()
+            val defense = card.getComponent(DefenseComponent::class.java).getDefense()
             Main.sendAllExcept(
-                "${client.getName()} plays a ${card.getComponent(NameComponent::class.java).getName()}.",
+                CardPlayedMessage(uuid, name, health, damage, defense, id),
                 this
             )
             val cardNewLocation = card.play(this)
@@ -129,7 +139,7 @@ class Player(var client: Client) {
     }
 
     private fun selectOneCardToPlay(): Card? {
-        client.displayMessage("Money remaining: $unspentMoney")
+        client.displayMessage(MoneyRemainderMessage(unspentMoney))
         val cardToNameMap = hand.associateBy {
             "(${it.getComponent(PurchasableComponent::class.java).getCost()}) ${
                 it.getComponent(NameComponent::class.java).getName()
@@ -142,12 +152,9 @@ class Player(var client: Client) {
     private fun drawCards() {
         while (hand.size < NORMAL_DRAW_BANNED_AT) {
             val deckComponent = deck.getComponent(DeckComponent::class.java)
-            if (client.checkIfPlayerWants(
-                    "another card",
-                    mapOf("deckSize" to "${deck.getComponent(HealthComponent::class.java).getHealth()}")
-                )
-            ) {
-                Main.sendAllExcept("${client.getName()} draws a card.", this)
+            client.displayMessage(DeckSizeMessage(deck.getComponent(HealthComponent::class.java).getHealth()))
+            if (client.checkIfPlayerWants(YesOrNoQuestionType.ANOTHER_CARD)) {
+                Main.sendAllExcept(DrawCardMessage(id), null)
                 val card = deckComponent.drawCard()
                 client.displayMessage("You drew a ${card.getComponent(NameComponent::class.java).getName()}.")
                 addCard(card)

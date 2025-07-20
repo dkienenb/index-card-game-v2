@@ -46,7 +46,7 @@ enum class DeckType(val typeName: String) {
                     .addComponent(BlocksRangedAttacksComponent()) as FightingCard,
                 FightingCard("Brick Wall", 3, 4, 0, player = player, tags = arrayOf(wall))
                     .addComponent(BlocksRangedAttacksComponent()) as FightingCard,
-                FightingCard("Limestone Block Wal", 4, 5, 0, player = player, tags = arrayOf(wall))
+                FightingCard("Limestone Block Wall", 4, 5, 0, player = player, tags = arrayOf(wall))
                     .addComponent(BlocksRangedAttacksComponent()) as FightingCard,
                 FightingCard("Granite-Basalt Block Wall", 5, 6, 0, player = player, tags = arrayOf(wall))
                     .addComponent(BlocksRangedAttacksComponent()) as FightingCard,
@@ -54,6 +54,8 @@ enum class DeckType(val typeName: String) {
                     .addComponent(BlocksRangedAttacksComponent()) as FightingCard,
                 FightingCard("Archer", 3, 2, 1, 0, true, player),
                 FightingCard("Archer", 3, 2, 1, 0, true, player),
+                // TODO armor piercing
+                FightingCard("Heavy Archer", 5, 2, 3, 0, true, player),
             )
 
             MYSTIC -> listOf(

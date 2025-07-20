@@ -1,5 +1,7 @@
 package org.gamenet.dkienenb.indexv2.server
 
+import org.gamenet.dkienenb.indexv2.client.message.CardDeathMessage
+
 class FightingCard(
     name: String,
     cost: Int,
@@ -11,6 +13,7 @@ class FightingCard(
     vararg tags: Tag
 ) : Card(name, cost) {
     init {
+        addComponent(CardIdComponent())
         addComponent(OriginalPlayerOwnedComponent(player))
         addComponent(MortalComponent())
         addComponent(MaxHealthComponent(health))
@@ -23,7 +26,7 @@ class FightingCard(
         addComponent(tagComponent)
         addComponent(TargetComponent())
         getComponent(MortalComponent::class.java).addDeathEffect {
-            Main.sendAllExcept("${it.getComponent(NameComponent::class.java).getName()} is no more.", null)
+            Main.sendAllExcept(CardDeathMessage(it.getComponent(CardIdComponent::class.java).getId()), null)
         }
     }
 

@@ -4,9 +4,9 @@ import org.gamenet.dkienenb.component.Component
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.component.ListStoringComponent
 
-class DeckComponent(type: DeckType, player: Player) : ListStoringComponent<Card>() {
+class DeckComponent(val type: DeckType, player: Player) : ListStoringComponent<Card>() {
 
-    val discardPile: MutableList<Card> = ArrayList()
+    private val discardPile: MutableList<Card> = ArrayList()
 
     init {
         value.addAll(type.initialCardList(player))

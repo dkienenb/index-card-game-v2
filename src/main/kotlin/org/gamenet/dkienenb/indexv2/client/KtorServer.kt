@@ -9,73 +9,20 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserSession(
-    val username: String = "Remote User",
+    val token: String,
+    val username: String = "Remote user",
     val choiceMessage: String = "",
     val choiceOptions: List<String> = listOf(),
     val playerChoice: String? = null,
     val messageBacklog: List<String> = listOf()
 )
-
-class KtorClient(val username: String, val server: KtorServer) : Client() {
-
-    override fun displayMessage(message: String) {
-        val sessions = server.sessions
-        val currentSession = sessions[username]
-            ?: throw IllegalStateException("Somehow don't have a session for user $username")
-        val newSession = UserSession(currentSession.username, currentSession.choiceMessage, currentSession.choiceOptions,
-            currentSession.playerChoice, currentSession.messageBacklog + message)
-        val newSessions = sessions - currentSession.username + Pair(username, newSession)
-        server.sessions = newSessions
-    }
-
-    override fun checkIfPlayerWants(message: String, additionalData: Map<String, String>): Boolean {
-        additionalData.forEach { displayMessage("${it.key} is ${it.value}.") }
-        return makeChoice("Do you want $message?", setOf("Yes", "No")) == "Yes"
-    }
-
-    override fun makeChoice(choiceLabel: String, options: Set<String>): String {
-        val sessions = server.sessions
-        val currentSession = sessions[username]
-            ?: throw IllegalStateException("Somehow don't have a session for user $username")
-        val optionsList = options.toList().mapIndexed { index, option -> "[${index}] $option" }
-        val newSession = UserSession(currentSession.username, choiceLabel, optionsList, "", currentSession.messageBacklog)
-        val newSessions = sessions - currentSession.username + Pair(username, newSession)
-        server.sessions = newSessions
-        val currentChoice : String
-        while (true) {
-            val currentSession2 = server.sessions[username]
-                ?: throw IllegalStateException("Somehow don't have a session for user $username")
-            val newChoice = currentSession2.playerChoice
-            if (newChoice != null) {
-                if (options.contains(newChoice)) {
-                    currentChoice = newChoice
-                    break
-                }
-                val intResult = newChoice.toIntOrNull()
-                if (intResult != null) {
-                    currentChoice = optionsList[intResult]
-                    break
-                }
-            }
-            Thread.sleep(1000)
-        }
-        val sessions2 = server.sessions
-        val currentSession2 = sessions2[username]
-            ?: throw IllegalStateException("Somehow don't have a session for user $username")
-        val newSession2 = UserSession(currentSession2.username, "", listOf(), "", currentSession2.messageBacklog)
-        val newSessions2 = sessions2 - currentSession2.username + Pair(username, newSession2)
-        server.sessions = newSessions2
-        return currentChoice
-    }
-
-    override fun getName(): String = username
-
-}
 
 class KtorServer {
 
@@ -86,10 +33,20 @@ class KtorServer {
         embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = { module() }).start()
     }
 
-    fun addClient(username: String): KtorClient {
-        val client = KtorClient(username, this)
-        clients += Pair(username, client)
-        sessions += Pair(username, UserSession(username))
+    fun modifySession(token: String?, modifier: (UserSession) -> UserSession) {
+        if (token != null) {
+            val oldSession = sessions[token]
+            if (oldSession != null) {
+                val newSession = modifier(oldSession)
+                sessions = sessions - token + Pair(token, newSession)
+            }
+        }
+    }
+
+    fun addClient(token: String): KtorClient {
+        val client = KtorClient(token, this)
+        clients += Pair(token, client)
+        sessions += Pair(token, UserSession(token))
         return client
     }
 
@@ -104,25 +61,44 @@ class KtorServer {
 
         routing {
             get("/") {
-                Thread.sleep(500)
                 val cachedSession = call.sessions.get<UserSession>()
-                val session = sessions[cachedSession?.username]
+                val session = sessions[cachedSession?.token]
                 call.respondHtml {
                     head {
                         title("Index card game v2 KTor client")
                     }
                     body {
                         if (session != null) {
+                            val client = clients[session.token] ?:
+                                throw IllegalStateException("Somehow don't have a client for user ${session.token}")
                             h1 { +"Welcome, ${session.username}!" }
-                            h2 { +"Session id: ${call.sessionId}" }
-                            for (message in session.messageBacklog) {
-                                h3 { +message }
+                            form(action = "change_name", method = FormMethod.post) {
+                                input(type = InputType.text, name = "name") {
+                                    value = session.username
+                                }
+                                button(type = ButtonType.submit) { +"Change" }
                             }
-                            br
-                            form(action = "clear_backlog", method = FormMethod.post) {
-                                button(type = ButtonType.submit) { +"Clear backlog" }
+                            h2 { +"User token - \"${session.token}\" Session id: ${call.sessionId}" }
+                            h2 { +"Deck size: ${client.deckSize}" }
+                            h2 { +"Money: ${client.remainingMoney}/${client.moneyDieResult}" }
+                            h3 { +"Players:" }
+                            client.players
+                                .map {
+                                    "${it.playerName} - " +
+                                            "${it.playerDeckType} Deck: ${it.playerDeckSize} cards, " +
+                                            "Hand: ${it.playerHandSize}"
+                                }
+                                .forEach { h4 { +it } }
+                            if (session.messageBacklog.isNotEmpty()) {
+                                session.messageBacklog
+                                    .map { it + "\n" }
+                                    .forEach { div { +it } }
+                                br
+                                form(action = "clear_backlog", method = FormMethod.post) {
+                                    button(type = ButtonType.submit) { +"Clear backlog" }
+                                }
+                                br
                             }
-                            br
                             h2 { +session.choiceMessage}
                             for (option in session.choiceOptions) {
                                 h3 { +option }
@@ -142,10 +118,10 @@ class KtorServer {
                                 button(type = ButtonType.submit) { +"Reload" }
                             }
                         } else {
-                            form(action = "set_name", method = FormMethod.post) {
+                            form(action = "set_token", method = FormMethod.post) {
                                 label {
-                                    +"Name: "
-                                    input(type = InputType.text, name = "username") {
+                                    +"User token: "
+                                    input(type = InputType.text, name = "token") {
                                         value = ""
                                     }
                                 }
@@ -158,43 +134,61 @@ class KtorServer {
 
             post("/clear_backlog") {
                 val cachedSession = call.sessions.get<UserSession>()
-                val session = sessions[cachedSession?.username]
-                if (session != null) {
-                    val username = session.username
-                    val newSession = UserSession(username, session.choiceMessage, session.choiceOptions,
-                        session.playerChoice, listOf()
+                modifySession(cachedSession?.token) {
+                    UserSession(
+                        it.token, it.username, it.choiceMessage, it.choiceOptions,
+                        it.playerChoice, listOf()
                     )
-                    sessions = sessions - username + Pair(username, newSession)
                 }
-                call.respondRedirect("/")
+                reload()
             }
 
-            post("/set_name") {
+            post("/change_name") {
+                val cachedSession = call.sessions.get<UserSession>()
                 val parameters = call.receiveParameters()
-                val username = parameters["username"]
-                if (username != null) {
-                    val userSession = sessions[username]
+                val name = parameters["name"]
+                modifySession(cachedSession?.token) {
+                    UserSession(
+                        it.token, name ?: it.username, it.choiceMessage, it.choiceOptions,
+                        it.playerChoice, it.messageBacklog
+                    )
+                }
+                reload()
+            }
+
+            post("/set_token") {
+                val parameters = call.receiveParameters()
+                val token = parameters["token"]
+                if (token != null) {
+                    val userSession = sessions[token]
                     if (userSession != null) {
                         call.sessions.set(userSession)
                     } else {
                         call.respondRedirect("/?invalid_session=1")
                     }
                 }
-                call.respondRedirect("/")
+                reload()
             }
 
             post("/decide") {
                 val cachedSession = call.sessions.get<UserSession>()
-                val session = sessions[cachedSession?.username]
-                if (session != null) {
-                    val username = session.username
-                    val parameters = call.receiveParameters()
-                    val choice = parameters["choice"]
-                    val newSession = UserSession(username, session.choiceMessage, session.choiceOptions, choice, session.messageBacklog)
-                    sessions = sessions - username + Pair(username, newSession)
+                val parameters = call.receiveParameters()
+                val choice = parameters["choice"]
+                modifySession(cachedSession?.token) {
+                    UserSession(
+                        it.token, it.username, it.choiceMessage, it.choiceOptions,
+                        choice, it.messageBacklog
+                    )
                 }
-                call.respondRedirect("/")
+                reload()
             }
         }
+    }
+
+    private suspend fun RoutingContext.reload() {
+        withContext(Dispatchers.IO) {
+            Thread.sleep(500)
+        }
+        call.respondRedirect("/")
     }
 }

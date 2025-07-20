@@ -1,5 +1,7 @@
 package org.gamenet.dkienenb.indexv2.client
 
+import org.gamenet.dkienenb.indexv2.client.message.Message
+import org.gamenet.dkienenb.indexv2.client.message.YesOrNoQuestionType
 import java.util.Scanner
 
 class LocalCLIClient : Client() {
@@ -30,10 +32,12 @@ class LocalCLIClient : Client() {
         println(message)
     }
 
-    override fun checkIfPlayerWants(message: String, additionalData: Map<String, String>): Boolean {
-        additionalData.forEach { displayMessage("${it.key} is ${it.value}.") }
-        return choiceButWithAPrompt("Do you want $message?", listOf("Yes", "No")) == "Yes"
+    override fun displayMessage(message: Message) {
+        displayMessage(message.toStringMessage())
     }
+
+    override fun checkIfPlayerWants(questionType: YesOrNoQuestionType): Boolean =
+        choiceButWithAPrompt("Do you want $questionType?", listOf("Yes", "No")) == "Yes"
 
     override fun makeChoice(choiceLabel: String, options: Set<String>): String =
         choice(choiceLabel, options.toList())

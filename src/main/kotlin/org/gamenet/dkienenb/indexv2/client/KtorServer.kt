@@ -137,7 +137,11 @@ class KtorServer {
                                     }
                                     button(type = ButtonType.submit) { +"Submit" }
                                 }
-                            }                        } else {
+                            }
+                            form(action = "/", method = FormMethod.get) {
+                                button(type = ButtonType.submit) { +"Reload" }
+                            }
+                        } else {
                             form(action = "set_name", method = FormMethod.post) {
                                 label {
                                     +"Name: "
@@ -146,9 +150,6 @@ class KtorServer {
                                     }
                                 }
                                 button(type = ButtonType.submit) { +"Submit" }
-                            }
-                            form(action = "/", method = FormMethod.get) {
-                                button(type = ButtonType.submit) { +"Reload" }
                             }
                         }
                     }

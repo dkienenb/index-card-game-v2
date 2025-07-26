@@ -3,25 +3,30 @@ package org.gamenet.dkienenb.indexv2.server
 import org.gamenet.dkienenb.event.EventBus
 import org.gamenet.dkienenb.event.EventListener
 import org.gamenet.dkienenb.event.EventListenerPriorityLevel
-import org.gamenet.dkienenb.indexv2.client.*
+import org.gamenet.dkienenb.indexv2.client.Client
+import org.gamenet.dkienenb.indexv2.client.KtorServer
+import org.gamenet.dkienenb.indexv2.client.RandomDecisionsAIClient
 import org.gamenet.dkienenb.indexv2.client.message.Message
 import org.gamenet.dkienenb.indexv2.client.message.MoneyDieMessage
 import org.gamenet.dkienenb.indexv2.client.message.PlayerInfoMessage
+import org.gamenet.dkienenb.indexv2.server.card.deck.DeckComponent
+import org.gamenet.dkienenb.indexv2.server.combat.HealthComponent
 import kotlin.random.Random
 
 object Main {
 
+    lateinit var players: List<Player>
     private val ktorServer = KtorServer()
     private val clientSendAllEventBus: EventBus = EventBus()
 
-    fun sendAllExcept(message: String, exception: Player?) {
+    fun sendMessageToAll(message: String, exception: Player?) {
         clientSendAllEventBus.addEvent(MultiSendEventOld(message, exception))
         clientSendAllEventBus.callNextEvent()
         println(message)
     }
 
-    fun sendAllExcept(message: Message, exception: Player?) {
-        clientSendAllEventBus.addEvent(MultiSendEventNew(message, exception))
+    fun sendMessageToAll(message: Message) {
+        clientSendAllEventBus.addEvent(MultiSendEventNew(message))
         clientSendAllEventBus.callNextEvent()
         println(message.toStringMessage())
     }
@@ -43,25 +48,25 @@ object Main {
                 EventListenerPriorityLevel.REACT
             ) { event ->
                 val multiSendEvent = event as MultiSendEventNew
-                if (client != multiSendEvent.exception?.client) {
-                    client.displayMessage(multiSendEvent.message)
-                }
+                client.displayMessage(multiSendEvent.message)
             })
         return client
     }
 
     @JvmStatic
     fun main(args: Array<String>) {
-        var players = listOf(
-            // Player(prepare(ktorServer.addClient("Ollieve")), 1),
-            Player(prepare(ktorServer.addClient("dkienenb")), 2),
-            Player(prepare(RandomDecisionsAIClient("BillyBob")), 3),
-            Player(prepare(RandomDecisionsAIClient("Hal")), 4),
+        players = listOf(
+            Player(prepare(ktorServer.addClient("butter")), 1),
+            Player(prepare(ktorServer.addClient("spark")), 2),
+            Player(prepare(RandomDecisionsAIClient("BillyBob")), 4),
+            Player(prepare(RandomDecisionsAIClient("Hal")), 5),
         )
         for (player in players) {
-            sendAllExcept(PlayerInfoMessage(player.id, player.client.getName(),
-                player.deck.getComponent(DeckComponent::class.java).type.typeName,
-                player.deck.getComponent(HealthComponent::class.java).getHealth()), null)
+            sendMessageToAll(
+                PlayerInfoMessage(player.id, player.client.getName(),
+                    player.deck.getComponent(DeckComponent::class.java).type.typeName,
+                    player.deck.getComponent(HealthComponent::class.java).getHealth())
+            )
         }
         var currentFirstPlayer = players.random()
         while (players.size > 1) {
@@ -84,7 +89,7 @@ object Main {
     private fun roundOfTurns(firstPlayer: Player, players: List<Player>) {
         val money = Random.nextInt(1, 7)
         players.forEach { it.unspentMoney = money }
-        sendAllExcept(MoneyDieMessage(money), null)
+        sendMessageToAll(MoneyDieMessage(money))
         var nextPlayer = firstPlayer
         do {
             if (!nextPlayer.isOut()) {

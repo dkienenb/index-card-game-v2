@@ -3,6 +3,13 @@ package org.gamenet.dkienenb.indexv2.server
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.indexv2.client.Client
 import org.gamenet.dkienenb.indexv2.client.message.*
+import org.gamenet.dkienenb.indexv2.server.card.*
+import org.gamenet.dkienenb.indexv2.server.card.deck.Deck
+import org.gamenet.dkienenb.indexv2.server.card.deck.DeckComponent
+import org.gamenet.dkienenb.indexv2.server.card.deck.DeckType
+import org.gamenet.dkienenb.indexv2.server.combat.*
+import org.gamenet.dkienenb.indexv2.server.status.StatusEffectComponent
+import org.gamenet.dkienenb.indexv2.server.status.StatusEffects
 
 private const val NORMAL_DRAW_BANNED_AT = 10
 
@@ -13,6 +20,7 @@ class Player(val client: Client, val id: Int) {
     val buildings = mutableListOf<ComponentedObject>()
     val battleLine = mutableListOf<ComponentedObject>()
     var unspentMoney: Int = 0
+    var turnsTaken: Int = 0
 
     fun <T> clientChoice(choiceLabel: String, choices: List<T>, stringMapper: (T) -> String): T {
         val labelToThingMap = choices.associateBy(stringMapper)
@@ -24,14 +32,33 @@ class Player(val client: Client, val id: Int) {
         clientChoice("deck type", DeckType.values().toList()) { it.typeName }
 
     fun takeTurn(players: List<Player>) {
-        Main.sendAllExcept("Turn begin: ${client.getName()}", this)
+        Main.sendMessageToAll(TurnStartMessage(id, client.getName()))
         client.displayMessage(MoneyRemainderMessage(unspentMoney))
-        drawCards()
-        playCards()
-        // TODO not attack phase first turn
-        attackPhase(players)
+        tickStatusEffects()
+        drawCards(players)
+        playCards(players)
+        if (turnsTaken > 0) {
+            attackPhase(players)
+        }
         // TODO retreat cards
-        Main.sendAllExcept("Turn end: ${client.getName()}", this)
+        Main.sendMessageToAll(TurnEndMessage(id, client.getName()))
+        turnsTaken++
+    }
+
+    private fun tickStatusEffects() {
+        val tickStatusEffectComponent: (ComponentedObject) -> Unit = {
+            if (it.hasComponent(StatusEffectComponent::class.java)) {
+                it.getComponent(StatusEffectComponent::class.java).tick()
+            }
+        }
+        hand.stream().forEach(tickStatusEffectComponent)
+        applyToAllDeployedCards(tickStatusEffectComponent)
+    }
+
+    fun applyToAllDeployedCards(tickStatusEffectComponent: (ComponentedObject) -> Unit) {
+        buildings.stream().forEach(tickStatusEffectComponent)
+        battleLine.stream().forEach(tickStatusEffectComponent)
+        deck.apply(tickStatusEffectComponent)
     }
 
     private fun attackPhase(players: List<Player>) {
@@ -51,20 +78,29 @@ class Player(val client: Client, val id: Int) {
         players: List<Player>
     ) {
         if (players.any { !it.isOut() }) {
+            client.displayMessage(NowAttackingWithMessage(fighter.getComponent(CardIdComponent::class.java).getId()))
             if (client.checkIfPlayerWants(YesOrNoQuestionType.TO_ATTACK)) {
-                val attackerComponent = fighter.getComponent(AttackerComponent::class.java)
-                val attackedPlayer = selectOtherPlayer(players)
-                val targets = if (attackerComponent.ranged) {
-                    attackedPlayer.getRangedTargets()
+                if (fighter.hasComponent(AlternativeAttackComponent::class.java) && client.checkIfPlayerWants(YesOrNoQuestionType.TO_USE_ALTERNATE_ATTACK)) {
+                    val alternativeAttackComponent = fighter.getComponent(AlternativeAttackComponent::class.java)
+                    alternativeAttackComponent.doAlternativeAttack()
                 } else {
-                    attackedPlayer.getMeleeTargets()
+                    val attackerComponent = fighter.getComponent(AttackerComponent::class.java)
+                    val attackedPlayer = selectOtherPlayer(players)
+                    val targets = if (attackerComponent.ranged) {
+                        attackedPlayer.getRangedTargets()
+                    } else {
+                        attackedPlayer.getMeleeTargets()
+                    }
+                    val selectedTarget =
+                        clientChoice(
+                            "target for ${fighter.getComponent(NameComponent::class.java).getName()}",
+                            targets
+                        ) {
+                            it.getComponent(NameComponent::class.java).getName() +
+                                    " [" + it.getComponent(CardIdComponent::class.java)?.getId() + "]"
+                        }
+                    attackerComponent.attack(selectedTarget, !attackerComponent.ranged)
                 }
-                val selectedTargetRanged =
-                    clientChoice(
-                        "target for ${fighter.getComponent(NameComponent::class.java).getName()}",
-                        targets
-                    ) { it.getComponent(NameComponent::class.java).getName() }
-                attackerComponent.attack(selectedTargetRanged, !attackerComponent.ranged, this, attackedPlayer)
             }
         }
     }
@@ -74,7 +110,7 @@ class Player(val client: Client, val id: Int) {
         if (battleLine.isNotEmpty()) {
             for (fighter in battleLine) {
                 list.add(fighter)
-                if (fighter.hasComponent(BlocksRangedAttacksComponent::class.java)) {
+                if (fighter.getComponent(StatusEffectComponent::class.java).has(StatusEffects.WALL)) {
                     break
                 }
             }
@@ -98,18 +134,18 @@ class Player(val client: Client, val id: Int) {
     }
 
     private fun selectPlayer(players: List<Player>): Player =
-        clientChoice("attack target", players.filter { !it.isOut() }) { it.client.getName() }
+        clientChoice("attack target", players.filter { !it.isOut() }) { it.client.getName() + " #" + it.id }
 
-    private fun playCards() {
+    private fun playCards(players: List<Player>) {
         while (true) {
             if (isOut()) {
                 break
             }
-            attemptPlay(selectOneCardToPlay() ?: break)
+            attemptPlay(selectOneCardToPlay() ?: break, players)
         }
     }
 
-    private fun attemptPlay(card: Card) {
+    private fun attemptPlay(card: Card, players: List<Player>) {
         val cost = card.getComponent(PurchasableComponent::class.java).getCost()
         if (unspentMoney >= cost) {
             unspentMoney -= cost
@@ -118,9 +154,8 @@ class Player(val client: Client, val id: Int) {
             val health = card.getComponent(HealthComponent::class.java).getHealth()
             val damage = card.getComponent(AttackerComponent::class.java).getDamage()
             val defense = card.getComponent(DefenseComponent::class.java).getDefense()
-            Main.sendAllExcept(
-                CardPlayedMessage(uuid, name, health, damage, defense, id),
-                this
+            Main.sendMessageToAll(
+                CardPlayedMessage(uuid, name, health, damage, defense, id)
             )
             val cardNewLocation = card.play(this)
             hand.remove(card)
@@ -133,6 +168,13 @@ class Player(val client: Client, val id: Int) {
                 CardPlayResultLocation.TOPDECK -> deck.getComponent(DeckComponent::class.java).topDeckCard(card)
                 CardPlayResultLocation.BOTTOMDECK -> deck.getComponent(DeckComponent::class.java).bottomDeckCard(card)
             }
+            players.filter { !it.isOut() }.forEach { player ->
+                player.applyToAllDeployedCards {
+                    if (it.hasComponent(ReactsToCardPlaysComponent::class.java)) {
+                        it.getComponent(ReactsToCardPlaysComponent::class.java).onCardPlay(card)
+                    }
+                }
+            }
         } else {
             client.displayMessage("You don't have enough money to play that.")
         }
@@ -141,23 +183,30 @@ class Player(val client: Client, val id: Int) {
     private fun selectOneCardToPlay(): Card? {
         client.displayMessage(MoneyRemainderMessage(unspentMoney))
         val cardToNameMap = hand.associateBy {
-            "(${it.getComponent(PurchasableComponent::class.java).getCost()}) ${
-                it.getComponent(NameComponent::class.java).getName()
-            }"
+            "(${it.getComponent(PurchasableComponent::class.java).getCost()}) " +
+                    "${it.getComponent(NameComponent::class.java).getName()} " +
+                    "[${it.getComponent(CardIdComponent::class.java).getId()}]"
         }.plus("No card" to null)
         val chosen = client.makeChoice("card to play", cardToNameMap.keys)
         return cardToNameMap[chosen]
     }
 
-    private fun drawCards() {
+    private fun drawCards(players: List<Player>) {
         while (hand.size < NORMAL_DRAW_BANNED_AT) {
             val deckComponent = deck.getComponent(DeckComponent::class.java)
             client.displayMessage(DeckSizeMessage(deck.getComponent(HealthComponent::class.java).getHealth()))
             if (client.checkIfPlayerWants(YesOrNoQuestionType.ANOTHER_CARD)) {
-                Main.sendAllExcept(DrawCardMessage(id), null)
+                Main.sendMessageToAll(DrawCardMessage(id))
                 val card = deckComponent.drawCard()
                 client.displayMessage("You drew a ${card.getComponent(NameComponent::class.java).getName()}.")
                 addCard(card)
+                players.filter { !it.isOut() }.forEach { player ->
+                    player.applyToAllDeployedCards {
+                        if (it.hasComponent(ReactsToCardDrawsComponent::class.java)) {
+                            it.getComponent(ReactsToCardDrawsComponent::class.java).onCardDraw(card)
+                        }
+                    }
+                }
                 if (isOut()) {
                     break
                 }
@@ -170,6 +219,7 @@ class Player(val client: Client, val id: Int) {
     fun isOut() = !(deck.getComponent(MortalComponent::class.java).isLiving())
 
     fun addCard(card: Card) {
+        card.getComponent(PlayerOwnedComponent::class.java).setPlayer(this)
         hand.add(card)
     }
 

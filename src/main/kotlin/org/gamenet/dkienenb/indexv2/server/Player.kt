@@ -96,8 +96,13 @@ class Player(val client: Client, val id: Int) {
                             "target for ${fighter.getComponent(NameComponent::class.java).getName()}",
                             targets
                         ) {
+                            val id: String = if (it.hasComponent(CardIdComponent::class.java)) {
+                                it.getComponent(CardIdComponent::class.java).getId().toString()
+                            } else {
+                                "no id"
+                            }
                             it.getComponent(NameComponent::class.java).getName() +
-                                    " [" + it.getComponent(CardIdComponent::class.java)?.getId() + "]"
+                                    " [" + id + "]"
                         }
                     attackerComponent.attack(selectedTarget, !attackerComponent.ranged)
                 }

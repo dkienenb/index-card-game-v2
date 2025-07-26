@@ -6,10 +6,12 @@ import org.gamenet.dkienenb.indexv2.server.card.NameComponent
 import org.gamenet.dkienenb.indexv2.server.card.PurchasableComponent
 import org.gamenet.dkienenb.indexv2.server.card.ReactiveComponent
 
-class TargetComponent : ReactiveComponent<Int>() {
+class TargetComponent : ReactiveComponent<Pair<ComponentedObject, Int>>() {
 
     fun addOnAttackedEffect(onAttackEffect: (attacker: ComponentedObject, damage: Int) -> Unit) {
-        addEffect(onAttackEffect)
+        addEffect { _, pair ->
+            onAttackEffect(pair.first, pair.second)
+        }
     }
 
     fun receiveAttack(
@@ -37,7 +39,7 @@ class TargetComponent : ReactiveComponent<Int>() {
                 }
             }
         }
-        trigger(damage)
+        trigger(Pair(attacker, damage))
     }
 
     override fun getDependencies(): MutableList<Class<out Component>> {

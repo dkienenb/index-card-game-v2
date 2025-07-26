@@ -5,7 +5,8 @@ import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.component.ListStoringComponent
 import org.gamenet.dkienenb.indexv2.client.message.PlayerLossMessage
 import org.gamenet.dkienenb.indexv2.client.message.StealCardMessage
-import org.gamenet.dkienenb.indexv2.server.*
+import org.gamenet.dkienenb.indexv2.server.Main
+import org.gamenet.dkienenb.indexv2.server.Player
 import org.gamenet.dkienenb.indexv2.server.card.Card
 import org.gamenet.dkienenb.indexv2.server.card.NameComponent
 import org.gamenet.dkienenb.indexv2.server.card.OriginalPlayerOwnedComponent
@@ -13,6 +14,7 @@ import org.gamenet.dkienenb.indexv2.server.card.PlayerOwnedComponent
 import org.gamenet.dkienenb.indexv2.server.combat.HealthComponent
 import org.gamenet.dkienenb.indexv2.server.combat.MaxHealthComponent
 import org.gamenet.dkienenb.indexv2.server.combat.MortalComponent
+import org.gamenet.dkienenb.indexv2.server.combat.TargetComponent
 
 class DeckComponent(val type: DeckType, player: Player) : ListStoringComponent<Card>() {
 
@@ -24,7 +26,7 @@ class DeckComponent(val type: DeckType, player: Player) : ListStoringComponent<C
 
     override fun getDependencies(): MutableList<Class<out Component>> {
         val list = super.getDependencies()
-        list.add(_root_ide_package_.org.gamenet.dkienenb.indexv2.server.combat.TargetComponent::class.java)
+        list.add(TargetComponent::class.java)
         list.add(OriginalPlayerOwnedComponent::class.java)
         return list
     }
@@ -32,7 +34,7 @@ class DeckComponent(val type: DeckType, player: Player) : ListStoringComponent<C
     override fun onAdd() {
         val cardCount = value.size
         attached.getComponent(MaxHealthComponent::class.java).setMaxHealth(cardCount)
-        attached.getComponent(_root_ide_package_.org.gamenet.dkienenb.indexv2.server.combat.TargetComponent::class.java)
+        attached.getComponent(TargetComponent::class.java)
             .addOnAttackedEffect { attacker: ComponentedObject, damage: Int ->
                 val player = attacker.getComponent(PlayerOwnedComponent::class.java).getPlayer()
                 val attackerId = player.id

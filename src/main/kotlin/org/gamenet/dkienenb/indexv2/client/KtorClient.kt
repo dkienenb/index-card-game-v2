@@ -42,7 +42,7 @@ class KtorClient(val token: String, val server: KtorServer) : Client() {
         val oldCard = cardsInPlay.firstOrNull { it.cardId == cardId }
         if (oldCard != null) {
             val newPlayer = modifier(oldCard)
-            cardsInPlay = cardsInPlay.filter { it.playerId != cardId } + newPlayer
+            cardsInPlay = cardsInPlay.filter { it.cardId != cardId } + newPlayer
         }
     }
 

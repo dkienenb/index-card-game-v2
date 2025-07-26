@@ -24,6 +24,7 @@ class RandomDecisionsAIClient(val displayName: String) : Client() {
                 return false
             }
             YesOrNoQuestionType.TO_ATTACK -> return true
+            YesOrNoQuestionType.TO_USE_ALTERNATE_ATTACK -> Random.nextBoolean()
         }
         return Random.nextBoolean()
     }

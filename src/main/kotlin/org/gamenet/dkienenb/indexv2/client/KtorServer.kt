@@ -3,6 +3,7 @@ package org.gamenet.dkienenb.indexv2.client
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.html.*
+import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -60,62 +61,104 @@ class KtorServer {
         }
 
         routing {
+            staticResources("/static", "webroot/static")
+            get("/log") {
+                val cachedSession = call.sessions.get<UserSession>()
+                val session = sessions[cachedSession?.token]
+                if (session != null) {
+                    val client = clients[session.token] ?:
+                    throw IllegalStateException("Somehow don't have a client for user ${session.token}")
+                    call.respondHtml {
+                        head{
+                            title("Index card game v2 KTor client")
+                        }
+                        body{
+                            h1 { +"All logs:"}
+                            client.messageHistory
+                                .map { it + "\n" }
+                                .forEach { div { +it } }
+                            br
+                            a(href = "/") { +"Return" }
+                        }
+                    }
+                }
+            }
             get("/") {
                 val cachedSession = call.sessions.get<UserSession>()
                 val session = sessions[cachedSession?.token]
                 call.respondHtml {
                     head {
                         title("Index card game v2 KTor client")
+                        style {
+                            unsafe {
+                                +"""
+                                .two-col {
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                gap: 16px;
+                                }
+                                """.trimIndent()
+                            }
+                        }
                     }
                     body {
+                        audio {
+                            attributes["src"] = "/static/Undaunted.mp3"
+                            attributes["autoplay"] = "true"
+                            attributes["loop"] = "true"
+                            // controls = false by default, so no player UI
+                        }
                         if (session != null) {
                             val client = clients[session.token] ?:
-                                throw IllegalStateException("Somehow don't have a client for user ${session.token}")
-                            h1 { +"Welcome, ${session.username}!" }
-                            form(action = "change_name", method = FormMethod.post) {
-                                input(type = InputType.text, name = "name") {
-                                    value = session.username
+                            throw IllegalStateException("Somehow don't have a client for user ${session.token}")
+                            div("two-col") {
+                                div {
+                                    h1 { +"Welcome, ${session.username}!" }
+                                    form(action = "change_name", method = FormMethod.post) {
+                                        input(type = InputType.text, name = "name") {
+                                            value = session.username
+                                        }
+                                        button(type = ButtonType.submit) { +"Change" }
+                                    }
+                                    h2 { +"Current player: ${client.currentPlayer}" }
+                                    h2 { +"Deck size: ${client.deckSize}, Money: ${client.remainingMoney}/${client.moneyDieResult}" }
+                                    h2 { +"Players:" }
+                                    for (player in client.players) {
+                                        val message =
+                                            "${player.playerName} - ${player.playerDeckType} Deck: ${player.playerDeckSize} cards, Hand: ${player.playerHandSize}"
+                                        h3 { +message }
+                                        h4 { +"--- Front of line ---" }
+                                        for (card in client.getBattleLine(player.playerId)) {
+                                            val cardAsText =
+                                                "${card.cardName} - ${card.currentHealth}/${card.maxHealth}"
+                                            div { +cardAsText }
+                                        }
+                                        h4 { +"--- Back of line ---" }
+                                    }
+                                    if (session.messageBacklog.isNotEmpty()) {
+                                        session.messageBacklog
+                                            .map { it + "\n" }
+                                            .forEach { div { +it } }
+                                        br
+                                    }
                                 }
-                                button(type = ButtonType.submit) { +"Change" }
-                            }
-                            h2 { +"User token - \"${session.token}\" Session id: ${call.sessionId}" }
-                            h2 { +"Deck size: ${client.deckSize}" }
-                            h2 { +"Money: ${client.remainingMoney}/${client.moneyDieResult}" }
-                            h3 { +"Players:" }
-                            client.players
-                                .map {
-                                    "${it.playerName} - " +
-                                            "${it.playerDeckType} Deck: ${it.playerDeckSize} cards, " +
-                                            "Hand: ${it.playerHandSize}"
-                                }
-                                .forEach { h4 { +it } }
-                            if (session.messageBacklog.isNotEmpty()) {
-                                session.messageBacklog
-                                    .map { it + "\n" }
-                                    .forEach { div { +it } }
-                                br
-                                form(action = "clear_backlog", method = FormMethod.post) {
-                                    button(type = ButtonType.submit) { +"Clear backlog" }
-                                }
-                                br
-                            }
-                            h2 { +session.choiceMessage}
-                            for (option in session.choiceOptions) {
-                                h3 { +option }
-                            }
-                            if (session.choiceMessage != "") {
-                                form(action = "decide", method = FormMethod.post) {
-                                    label {
-                                        +"Choice: "
-                                        input(type = InputType.text, name = "choice") {
-                                            value = ""
+                                div {
+                                    if (session.choiceMessage != "") {
+                                        h2 { +session.choiceMessage }
+                                        for (option in session.choiceOptions) {
+                                            form(action = "decide", method = FormMethod.post) {
+                                                input(type = InputType.hidden, name = "choice") {
+                                                    value = option
+                                                }
+                                                button(type = ButtonType.submit) { +option }
+                                            }
+                                            br
                                         }
                                     }
-                                    button(type = ButtonType.submit) { +"Submit" }
+                                    if (client.messageHistory.isNotEmpty()) {
+                                        a(href = "/log") { +"Full log" }
+                                    }
                                 }
-                            }
-                            form(action = "/", method = FormMethod.get) {
-                                button(type = ButtonType.submit) { +"Reload" }
                             }
                         } else {
                             form(action = "set_token", method = FormMethod.post) {
@@ -126,6 +169,29 @@ class KtorServer {
                                     }
                                 }
                                 button(type = ButtonType.submit) { +"Submit" }
+                            }
+                        }
+                        script {
+                            unsafe {
+                                +"""
+                                let lastHtml = document.documentElement.outerHTML;  
+                                async function checkForUpdate() {
+                                    try {
+                                        const resp = await fetch(window.location.href, { cache: 'no-store' });
+                                        const newHtml = await resp.text();
+                                        if (newHtml !== lastHtml) {
+                                            document.open();
+                                            document.write(newHtml);
+                                            document.close();
+                                            lastHtml = newHtml;
+                                        }
+                                    } catch (e) {
+                                      console.error('Auto‑reload failed:', e);
+                                    }
+                                }
+                                checkForUpdate();
+                                setInterval(checkForUpdate, 5_000);
+                               """.trimIndent()
                             }
                         }
                     }

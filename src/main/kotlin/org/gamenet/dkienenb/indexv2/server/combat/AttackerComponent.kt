@@ -10,7 +10,7 @@ import org.gamenet.dkienenb.indexv2.server.card.PlayerOwnedComponent
 import org.gamenet.dkienenb.indexv2.server.status.StatusEffectComponent
 import org.gamenet.dkienenb.indexv2.server.status.StatusEffects
 
-class AttackerComponent(damage: Int, var ranged: Boolean) : ModifiedIntComponent(damage) {
+public class AttackerComponent(damage: Int, var ranged: Boolean) : ModifiedIntComponent(damage) {
 
     private val attackEffects = mutableListOf<(ComponentedObject) -> Unit>()
 

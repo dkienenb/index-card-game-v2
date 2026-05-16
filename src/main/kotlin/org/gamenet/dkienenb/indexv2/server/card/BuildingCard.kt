@@ -3,7 +3,7 @@ package org.gamenet.dkienenb.indexv2.server.card
 import org.gamenet.dkienenb.indexv2.server.Player
 import org.gamenet.dkienenb.indexv2.server.status.StatusEffectInfliction
 
-class BuildingCard(
+public class BuildingCard(
     name: String,
     cost: Int,
     health: Int,

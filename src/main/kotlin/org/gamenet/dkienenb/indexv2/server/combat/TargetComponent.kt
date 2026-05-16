@@ -6,7 +6,7 @@ import org.gamenet.dkienenb.indexv2.server.card.NameComponent
 import org.gamenet.dkienenb.indexv2.server.card.PurchasableComponent
 import org.gamenet.dkienenb.indexv2.server.card.ReactiveComponent
 
-class TargetComponent : ReactiveComponent<Pair<ComponentedObject, Int>>() {
+public class TargetComponent : ReactiveComponent<Pair<ComponentedObject, Int>>() {
 
     fun addOnAttackedEffect(onAttackEffect: (attacker: ComponentedObject, damage: Int) -> Unit) {
         addEffect { _, pair ->

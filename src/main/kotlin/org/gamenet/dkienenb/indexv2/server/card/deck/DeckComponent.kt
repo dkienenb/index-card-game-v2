@@ -17,7 +17,7 @@ import org.gamenet.dkienenb.indexv2.server.combat.MaxHealthComponent
 import org.gamenet.dkienenb.indexv2.server.combat.MortalComponent
 import org.gamenet.dkienenb.indexv2.server.combat.TargetComponent
 
-class DeckComponent(val type: DeckType, player: Player) : ListStoringComponent<Card>() {
+public class DeckComponent(val type: DeckType, player: Player) : ListStoringComponent<Card>() {
 
     private val discardPile: MutableList<Card> = ArrayList()
 

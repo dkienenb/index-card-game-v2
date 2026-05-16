@@ -6,7 +6,7 @@ import org.gamenet.dkienenb.indexv2.server.status.StatusEffectComponent
 import org.gamenet.dkienenb.indexv2.server.status.StatusEffectInfliction
 import org.gamenet.dkienenb.indexv2.server.status.StatusEffects
 
-class FightingCard(
+public class FightingCard(
     name: String,
     cost: Int,
     health: Int,

@@ -2,7 +2,7 @@ package org.gamenet.dkienenb.indexv2.server.card
 
 import org.gamenet.dkienenb.component.ImmutableDataStoringComponent
 
-class CardIdComponent : ImmutableDataStoringComponent<Int>(generateId()) {
+public class CardIdComponent : ImmutableDataStoringComponent<Int>(generateId()) {
     fun getId(): Int = value
 
     companion object {

@@ -5,9 +5,9 @@ import org.gamenet.dkienenb.indexv2.client.message.StatusEffectInflictedMessage
 import org.gamenet.dkienenb.indexv2.server.Main
 import org.gamenet.dkienenb.indexv2.server.card.CardIdComponent
 
-class StatusEffectInstance(
+public class StatusEffectInstance(
     val effect: StatusEffect,
-    private val potency: Int,
+    val potency: Int,
     var duration: Int,
     private val victim: ComponentedObject,
     private val inflictor: ComponentedObject?
@@ -32,13 +32,13 @@ class StatusEffectInstance(
     }
 }
 
-enum class StatusEffectCategory {
+public enum class StatusEffectCategory {
     BUFF,
     DEBUFF,
     INNATE
 }
 
-abstract class StatusEffect(val category: StatusEffectCategory, val name: String, val combinesWithExistingStacks: Boolean) {
+public abstract class StatusEffect(val category: StatusEffectCategory, val name: String, val stacksDuration: Boolean) {
 
     open fun onApply(potency: Int, currentDuration: Int, victim: ComponentedObject, inflictor: ComponentedObject?) = Unit
     open fun onExpire(potency: Int, victim: ComponentedObject, inflictor: ComponentedObject?) = Unit
@@ -50,6 +50,6 @@ abstract class StatusEffect(val category: StatusEffectCategory, val name: String
     }
 }
 
-abstract class MarkerStatusEffect(category: StatusEffectCategory, name: String) : StatusEffect(category, name, false) {
+public abstract class MarkerStatusEffect(category: StatusEffectCategory, name: String) : StatusEffect(category, name, false) {
     override fun onTick(potency: Int, currentDuration: Int, victim: ComponentedObject, inflictor: ComponentedObject?) = Unit
 }

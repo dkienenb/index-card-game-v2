@@ -3,7 +3,7 @@ package org.gamenet.dkienenb.indexv2.server.card
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.indexv2.server.Player
 
-abstract class Card(name: String, cost: Int) : ComponentedObject() {
+public abstract class Card(name: String, cost: Int) : ComponentedObject() {
     init {
         this.addComponent(PurchasableComponent(cost))
         this.addComponent(NameComponent(name))

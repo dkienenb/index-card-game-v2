@@ -6,7 +6,7 @@ import org.gamenet.dkienenb.indexv2.server.Main
 import org.gamenet.dkienenb.indexv2.server.ModifiedIntComponent
 import org.gamenet.dkienenb.indexv2.server.card.CardIdComponent
 
-class HealthComponent : ModifiedIntComponent(0) {
+public class HealthComponent : ModifiedIntComponent(0) {
 
     var temporaryHealth = 0
 

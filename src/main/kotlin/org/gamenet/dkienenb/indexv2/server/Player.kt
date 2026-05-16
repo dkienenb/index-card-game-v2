@@ -13,7 +13,7 @@ import org.gamenet.dkienenb.indexv2.server.status.StatusEffects
 
 private const val NORMAL_DRAW_BANNED_AT = 10
 
-class Player(val client: Client, val id: Int) {
+public class Player(val client: Client, val id: Int) {
 
     val deck = Deck(this, askClientForDeckType())
     val hand = mutableListOf<Card>()

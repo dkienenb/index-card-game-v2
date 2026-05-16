@@ -4,7 +4,7 @@ import org.gamenet.dkienenb.indexv2.client.message.Message
 import org.gamenet.dkienenb.indexv2.client.message.YesOrNoQuestionType
 import java.util.Scanner
 
-class LocalCLIClient : Client() {
+public class LocalCLIClient : Client() {
 
     private val scanner = Scanner(System.`in`)
 

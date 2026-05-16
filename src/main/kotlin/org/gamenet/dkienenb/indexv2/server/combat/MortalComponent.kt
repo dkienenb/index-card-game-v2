@@ -3,7 +3,7 @@ package org.gamenet.dkienenb.indexv2.server.combat
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.indexv2.server.card.ReactiveComponent
 
-class MortalComponent : ReactiveComponent<Unit>() {
+public class MortalComponent : ReactiveComponent<Unit>() {
 
     private val taggedEffects = mutableListOf<(ComponentedObject, ComponentedObject?) -> Unit>()
     private var living: Boolean = true

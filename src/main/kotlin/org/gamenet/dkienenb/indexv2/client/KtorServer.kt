@@ -25,7 +25,7 @@ data class UserSession(
     val messageBacklog: List<String> = listOf()
 )
 
-class KtorServer {
+public class KtorServer {
 
     private var clients = mapOf<String, KtorClient>()
     var sessions = mapOf<String, UserSession>()

@@ -9,7 +9,7 @@ import org.gamenet.dkienenb.indexv2.server.status.StatusEffectComponent
 import org.gamenet.dkienenb.indexv2.server.status.StatusEffectInfliction
 import org.gamenet.dkienenb.indexv2.server.status.StatusEffectInflictorComponent
 
-abstract class AttackableCard(
+public abstract class AttackableCard(
     name: String,
     cost: Int,
     health: Int,

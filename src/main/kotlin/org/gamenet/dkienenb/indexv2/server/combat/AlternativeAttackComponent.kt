@@ -7,7 +7,7 @@ import org.gamenet.dkienenb.indexv2.server.card.PlayerOwnedComponent
 import org.gamenet.dkienenb.indexv2.server.status.StatusEffectComponent
 import org.gamenet.dkienenb.indexv2.server.status.StatusEffects
 
-class AlternativeAttacksComponent : ListStoringComponent<AlternativeAttack>() {
+public class AlternativeAttacksComponent : ListStoringComponent<AlternativeAttack>() {
     fun addAlternativeAttack(newAttack: AlternativeAttack) {
         value.add(newAttack)
     }
@@ -15,7 +15,7 @@ class AlternativeAttacksComponent : ListStoringComponent<AlternativeAttack>() {
     fun getAvailableAttacks(attacker: ComponentedObject): List<AlternativeAttack> = value.filter { it.isAvailable(attacker) }
 }
 
-abstract class AlternativeAttack {
+public abstract class AlternativeAttack {
     open fun isAvailable(attacker: ComponentedObject): Boolean = true
     abstract fun getAttackName(): String
 
@@ -24,7 +24,7 @@ abstract class AlternativeAttack {
     open fun isRanged(fighter: ComponentedObject): Boolean = fighter.getComponent(AttackerComponent::class.java).ranged
 }
 
-abstract class LimitedQuantityAlternateAttack(private val maxNumberOfUses: Int) : AlternativeAttack() {
+public abstract class LimitedQuantityAlternateAttack(private val maxNumberOfUses: Int) : AlternativeAttack() {
 
     private var numberOfUses = 0
 
@@ -38,7 +38,7 @@ abstract class LimitedQuantityAlternateAttack(private val maxNumberOfUses: Int) 
     }
 }
 
-class DefensiveMove(maxNumberOfUses: Int = 1, private val amountOfDefense: Int = 1) : LimitedQuantityAlternateAttack(maxNumberOfUses) {
+public class DefensiveMove(maxNumberOfUses: Int = 1, private val amountOfDefense: Int = 1) : LimitedQuantityAlternateAttack(maxNumberOfUses) {
     override fun doLimitedAttack(attacker: ComponentedObject, victim: ComponentedObject?, timesPreviouslyDone: Int) {
         attacker.getComponent(DefenseComponent::class.java).addModifier(ConstantBonusModifier(amountOfDefense))
     }
@@ -46,14 +46,14 @@ class DefensiveMove(maxNumberOfUses: Int = 1, private val amountOfDefense: Int =
     override fun requiresTarget(): Boolean = false
 }
 
-class BurnAttack(private val amountOfBurn: Int = 1): AlternativeAttack() {
+public class BurnAttack(private val amountOfBurn: Int = 1): AlternativeAttack() {
     override fun getAttackName(): String = "Burn"
     override fun doAttack(attacker: ComponentedObject, victim: ComponentedObject?) {
         victim!!.getComponent(StatusEffectComponent::class.java).applyStatusEffect(1, amountOfBurn, StatusEffects.BURNING, attacker)
     }
 }
 
-class WindAttack: AlternativeAttack() {
+public class WindAttack: AlternativeAttack() {
     override fun getAttackName(): String = "Haste"
     override fun doAttack(attacker: ComponentedObject, victim: ComponentedObject?) {
         attacker.getComponent(AttackerComponent::class.java).attack(victim!!, false)

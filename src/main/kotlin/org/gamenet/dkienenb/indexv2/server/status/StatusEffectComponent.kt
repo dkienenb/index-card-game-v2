@@ -6,12 +6,15 @@ import org.gamenet.dkienenb.indexv2.client.message.StatusEffectInflictedMessage
 import org.gamenet.dkienenb.indexv2.server.Main
 import org.gamenet.dkienenb.indexv2.server.card.CardIdComponent
 
-class StatusEffectComponent : ListStoringComponent<StatusEffectInstance>() {
+public class StatusEffectComponent : ListStoringComponent<StatusEffectInstance>() {
 
     fun applyStatusEffect(potency: Int, duration: Int, statusEffect: StatusEffect, inflictor: ComponentedObject?) {
         val id = attached.getComponent(CardIdComponent::class.java).getId()
-        if (statusEffect.combinesWithExistingStacks) {
-            val instance
+        if (statusEffect.stacksDuration && has(statusEffect, potency)) {
+            val instance = value.first { it.effect == statusEffect && it.potency == potency }
+            instance.duration = instance.duration + duration
+            instance.apply()
+            Main.sendMessageToAll(StatusEffectInflictedMessage(id, statusEffect.name, duration, potency))
         } else {
             val instance = StatusEffectInstance(statusEffect, potency, duration, attached, inflictor)
             value.add(instance)
@@ -36,6 +39,7 @@ class StatusEffectComponent : ListStoringComponent<StatusEffectInstance>() {
     }
 
     fun has(effect: StatusEffect) = value.any { it.effect == effect }
+    fun has(effect: StatusEffect, potency: Int) = value.any { it.effect == effect && it.potency == potency }
     fun clearAllStatuses() = value.clear()
 
 }

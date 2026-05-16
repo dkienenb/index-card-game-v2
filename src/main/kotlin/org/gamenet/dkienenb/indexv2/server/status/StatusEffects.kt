@@ -3,7 +3,7 @@ package org.gamenet.dkienenb.indexv2.server.status
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.indexv2.server.combat.HealthComponent
 
-class StatusEffects {
+public class StatusEffects {
     companion object {
         val BURNING = BurningDebuff()
         val FLYING = FlyingBuff()
@@ -15,7 +15,7 @@ class StatusEffects {
     }
 }
 
-class PlatedArmorBuff: StatusEffect(StatusEffectCategory.BUFF, "Block", true) {
+public class PlatedArmorBuff: StatusEffect(StatusEffectCategory.BUFF, "Block", true) {
 
     override fun onApply(potency: Int, currentDuration: Int, victim: ComponentedObject, inflictor: ComponentedObject?) {
         victim.getComponent(HealthComponent::class.java).temporaryHealth = potency
@@ -25,14 +25,14 @@ class PlatedArmorBuff: StatusEffect(StatusEffectCategory.BUFF, "Block", true) {
     }
 }
 
-class NoRetaliationBuff: MarkerStatusEffect(StatusEffectCategory.BUFF, "Swift")
-class ArmorPiercingBuff : MarkerStatusEffect(StatusEffectCategory.BUFF, "Armor piercing")
-class WallBuff : MarkerStatusEffect(StatusEffectCategory.BUFF, "Wall")
-class FlyingBuff : MarkerStatusEffect(StatusEffectCategory.BUFF, "Flying")
+public class NoRetaliationBuff: MarkerStatusEffect(StatusEffectCategory.BUFF, "Swift")
+public class ArmorPiercingBuff : MarkerStatusEffect(StatusEffectCategory.BUFF, "Armor piercing")
+public class WallBuff : MarkerStatusEffect(StatusEffectCategory.BUFF, "Wall")
+public class FlyingBuff : MarkerStatusEffect(StatusEffectCategory.BUFF, "Flying")
 
 // debuffs
 
-class InstantDamageDebuff(name: String) : StatusEffect(StatusEffectCategory.DEBUFF, name, false) {
+public class InstantDamageDebuff(name: String) : StatusEffect(StatusEffectCategory.DEBUFF, name, false) {
     override fun onTick(potency: Int, currentDuration: Int, victim: ComponentedObject, inflictor: ComponentedObject?) {}
     override fun onApply(potency: Int, currentDuration: Int, victim: ComponentedObject, inflictor: ComponentedObject?) {
         victim.getComponent(HealthComponent::class.java).changeHealth(-potency)
@@ -40,7 +40,7 @@ class InstantDamageDebuff(name: String) : StatusEffect(StatusEffectCategory.DEBU
     override fun tickChangeDuration(potency: Int, currentDuration: Int): Int = 0
 }
 
-class BurningDebuff: StatusEffect(StatusEffectCategory.DEBUFF, "Burning", true) {
+public class BurningDebuff: StatusEffect(StatusEffectCategory.DEBUFF, "Burning", true) {
     override fun onTick(potency: Int, currentDuration: Int, victim: ComponentedObject, inflictor: ComponentedObject?) {
         victim.getComponent(HealthComponent::class.java).changeHealth(-1)
     }
@@ -48,7 +48,7 @@ class BurningDebuff: StatusEffect(StatusEffectCategory.DEBUFF, "Burning", true) 
 
 // types
 
-class CreatureTypes {
+public class CreatureTypes {
     companion object {
         val RAT = RatCreatureType()
         val SLIME = SlimeCreatureType()
@@ -57,7 +57,7 @@ class CreatureTypes {
     }
 }
 
-class LowerBeingCreatureType : MarkerStatusEffect(StatusEffectCategory.INNATE, "Lower Being")
-class WallCreatureType : MarkerStatusEffect(StatusEffectCategory.INNATE, "Wall")
-class SlimeCreatureType : MarkerStatusEffect(StatusEffectCategory.INNATE, "Slime")
-class RatCreatureType : MarkerStatusEffect(StatusEffectCategory.INNATE, "Rat")
+public class LowerBeingCreatureType : MarkerStatusEffect(StatusEffectCategory.INNATE, "Lower Being")
+public class WallCreatureType : MarkerStatusEffect(StatusEffectCategory.INNATE, "Wall")
+public class SlimeCreatureType : MarkerStatusEffect(StatusEffectCategory.INNATE, "Slime")
+public class RatCreatureType : MarkerStatusEffect(StatusEffectCategory.INNATE, "Rat")

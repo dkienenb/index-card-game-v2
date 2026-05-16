@@ -12,7 +12,7 @@ import org.gamenet.dkienenb.indexv2.server.combat.AttackerComponent
 import org.gamenet.dkienenb.indexv2.server.combat.MortalComponent
 import org.gamenet.dkienenb.indexv2.server.combat.TargetComponent
 
-enum class StatusEffectInflictionTiming {
+public enum class StatusEffectInflictionTiming {
     ON_PLAY, // target == self
     ON_ATTACKED, // target == attacker
     ON_ATTACK, // target == attacked
@@ -22,20 +22,20 @@ enum class StatusEffectInflictionTiming {
 //    ON_ALIVE_TURN_START, // just create a status effect that inflicts another
 }
 
-enum class StatusEffectInflictionScope {
+public enum class StatusEffectInflictionScope {
     DEPLOYED_CARDS,
     SELF,
     TARGET,
     HAND_CARDS,
 }
 
-enum class StatusEffectInflictionAllyState {
+public enum class StatusEffectInflictionAllyState {
     ALL,
     FRIENDLY,
     HOSTILE,
 }
 
-class StatusEffectInfliction(
+public class StatusEffectInfliction(
     val inflictionTiming: StatusEffectInflictionTiming,
     val inflictionScope: StatusEffectInflictionScope,
     val inflictionAllyState: StatusEffectInflictionAllyState,
@@ -45,7 +45,7 @@ class StatusEffectInfliction(
     val prerequisiteEffects: List<StatusEffect>,
 )
 
-class StatusEffectInflictorComponent : ListStoringComponent<StatusEffectInfliction>() {
+public class StatusEffectInflictorComponent : ListStoringComponent<StatusEffectInfliction>() {
     fun addInfliction(infliction: StatusEffectInfliction) {
         checkNotNull(attached) { "Not attached yet! Attach inflictor component, then add inflictions." }
         value.add(infliction)

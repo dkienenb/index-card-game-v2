@@ -13,7 +13,7 @@ import org.gamenet.dkienenb.indexv2.server.card.deck.DeckComponent
 import org.gamenet.dkienenb.indexv2.server.combat.HealthComponent
 import kotlin.random.Random
 
-object Main {
+public object Main {
 
     lateinit var players: List<Player>
     private val ktorServer = KtorServer()

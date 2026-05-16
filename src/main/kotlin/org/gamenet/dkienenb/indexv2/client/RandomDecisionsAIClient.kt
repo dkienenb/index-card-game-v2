@@ -5,7 +5,7 @@ import org.gamenet.dkienenb.indexv2.client.message.Message
 import org.gamenet.dkienenb.indexv2.client.message.YesOrNoQuestionType
 import kotlin.random.Random
 
-class RandomDecisionsAIClient(private val displayName: String) : Client() {
+public class RandomDecisionsAIClient(private val displayName: String) : Client() {
 
     private var outOfCards = false
 

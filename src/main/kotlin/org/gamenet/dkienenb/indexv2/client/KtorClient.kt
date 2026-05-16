@@ -2,7 +2,7 @@ package org.gamenet.dkienenb.indexv2.client
 
 import org.gamenet.dkienenb.indexv2.client.message.*
 
-data class ClientCardView(
+public data class ClientCardView(
     val cardId: Int,
     val cardName: String,
     val playerId: Int,
@@ -10,7 +10,7 @@ data class ClientCardView(
     val maxHealth: Int
 )
 
-data class ClientPlayerView(
+public data class ClientPlayerView(
     val playerId: Int,
     val playerName: String,
     val playerDeckType: String,
@@ -18,7 +18,7 @@ data class ClientPlayerView(
     val playerHandSize: Int
 )
 
-class KtorClient(private val token: String, val server: KtorServer) : Client() {
+public class KtorClient(private val token: String, val server: KtorServer) : Client() {
 
     var deckSize = 0
     var remainingMoney = 0

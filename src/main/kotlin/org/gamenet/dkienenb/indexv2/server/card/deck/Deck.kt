@@ -6,7 +6,7 @@ import org.gamenet.dkienenb.indexv2.server.card.*
 import org.gamenet.dkienenb.indexv2.server.combat.*
 import org.gamenet.dkienenb.indexv2.server.status.StatusEffectComponent
 
-class Deck(player: Player, deckType: DeckType) : ComponentedObject() {
+public class Deck(player: Player, deckType: DeckType) : ComponentedObject() {
     init {
         addComponent(CardIdComponent())
         // placeholder value, when the deck component is added, this is addressed properly

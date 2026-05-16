@@ -10,7 +10,7 @@ import org.gamenet.dkienenb.indexv2.server.card.OneShotCard
 import org.gamenet.dkienenb.indexv2.server.combat.*
 import org.gamenet.dkienenb.indexv2.server.status.*
 
-enum class DeckType(val typeName: String) {
+public enum class DeckType(val typeName: String) {
     SEWERS("Sewers"),
     CASTLE("Castle"),
     MYSTIC("Mystic");

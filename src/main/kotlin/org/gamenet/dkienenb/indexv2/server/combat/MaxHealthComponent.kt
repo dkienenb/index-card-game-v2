@@ -4,9 +4,7 @@ import org.gamenet.dkienenb.indexv2.server.ModifiedIntComponent
 
 class MaxHealthComponent(maxHealth: Int) : ModifiedIntComponent(maxHealth) {
 
-    fun getMaxHealth(): Int = value
+    fun getMaxHealth(): Int = getValue()
 
-    fun setMaxHealth(maxHealth: Int) {
-        value = maxHealth
-    }
+    fun setMaxHealth(maxHealth: Int) = setValue(maxHealth)
 }

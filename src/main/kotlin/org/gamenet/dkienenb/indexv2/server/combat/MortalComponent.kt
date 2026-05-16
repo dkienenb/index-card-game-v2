@@ -7,7 +7,7 @@ class MortalComponent : ReactiveComponent<Unit>() {
 
     private val taggedEffects = mutableListOf<(ComponentedObject, ComponentedObject?) -> Unit>()
     private var living: Boolean = true
-    var combatTag: ComponentedObject? = null
+    private var combatTag: ComponentedObject? = null
 
     fun addDeathEffect(deathEffect: (ComponentedObject, Unit) -> Unit) {
         addEffect(deathEffect)

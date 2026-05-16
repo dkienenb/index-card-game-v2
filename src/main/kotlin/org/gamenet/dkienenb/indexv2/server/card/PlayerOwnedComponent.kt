@@ -8,6 +8,6 @@ class PlayerOwnedComponent(player: Player) : MutableDataStoringComponent<Player>
         setPlayer(player)
     }
 
-    fun getPlayer(): Player = value
-    fun setPlayer(player: Player) { value = player }
+    fun getPlayer(): Player = getValue()
+    fun setPlayer(player: Player) = setValue(player)
 }

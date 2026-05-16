@@ -26,6 +26,7 @@ class TargetComponent : ReactiveComponent<Pair<ComponentedObject, Int>>() {
             damage - attached.getComponent(DefenseComponent::class.java).getDefense()
         }
         val reasonableDamage = if (actualDamage < 0) {0} else {actualDamage}
+        trigger(attacker to damage)
         attached.getComponent(HealthComponent::class.java).changeHealth(-reasonableDamage)
         if (hasRetaliation) {
             if (attached.getComponent(MortalComponent::class.java).isLiving()) {
@@ -39,7 +40,6 @@ class TargetComponent : ReactiveComponent<Pair<ComponentedObject, Int>>() {
                 }
             }
         }
-        trigger(Pair(attacker, damage))
     }
 
     override fun getDependencies(): MutableList<Class<out Component>> {

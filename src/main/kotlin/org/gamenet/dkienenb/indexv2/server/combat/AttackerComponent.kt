@@ -14,11 +14,7 @@ class AttackerComponent(damage: Int, var ranged: Boolean) : ModifiedIntComponent
 
     private val attackEffects = mutableListOf<(ComponentedObject) -> Unit>()
 
-    fun getDamage(): Int = value
-
-    fun setDamage(damage: Int) {
-        value = damage
-    }
+    fun getDamage(): Int = getValue()
 
     override fun getDependencies(): MutableList<Class<out Component>> {
         val list = super.getDependencies()
@@ -38,11 +34,13 @@ class AttackerComponent(damage: Int, var ranged: Boolean) : ModifiedIntComponent
         attackEffects.forEach {
             it(target)
         }
+        val hasNoRetaliationBuff = attached.hasComponent(StatusEffectComponent::class.java)
+                && attached.getComponent(StatusEffectComponent::class.java).has(StatusEffects.NO_RETALIATION)
         target.getComponent(TargetComponent::class.java).receiveAttack(
             attached,
             getDamage(),
             attached.getComponent(StatusEffectComponent::class.java).has(StatusEffects.PIERCING),
-            hasRetaliation,
+            hasRetaliation && !hasNoRetaliationBuff,
         )
     }
 

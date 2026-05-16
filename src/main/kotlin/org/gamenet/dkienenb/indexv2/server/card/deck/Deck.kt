@@ -2,15 +2,14 @@ package org.gamenet.dkienenb.indexv2.server.card.deck
 
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.indexv2.server.Player
-import org.gamenet.dkienenb.indexv2.server.card.NameComponent
-import org.gamenet.dkienenb.indexv2.server.card.OriginalPlayerOwnedComponent
-import org.gamenet.dkienenb.indexv2.server.card.PlayerOwnedComponent
-import org.gamenet.dkienenb.indexv2.server.card.PurchasableComponent
+import org.gamenet.dkienenb.indexv2.server.card.*
 import org.gamenet.dkienenb.indexv2.server.combat.*
 import org.gamenet.dkienenb.indexv2.server.status.StatusEffectComponent
 
 class Deck(player: Player, deckType: DeckType) : ComponentedObject() {
     init {
+        addComponent(CardIdComponent())
+        // placeholder value, when the deck component is added, this is addressed properly
         addComponent(MaxHealthComponent(100))
         addComponent(MinHealthComponent())
         addComponent(MortalComponent())

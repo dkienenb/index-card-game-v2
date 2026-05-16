@@ -4,9 +4,7 @@ import org.gamenet.dkienenb.indexv2.server.ModifiedIntComponent
 
 class MinHealthComponent : ModifiedIntComponent(0) {
 
-    fun setMinHealth(health: Int) {
-        value = health
-    }
+    fun getMinHealth(): Int = getValue()
+    fun setMinHealth(value: Int) = setValue(value)
 
-    fun getMinHealth(): Int = value
 }

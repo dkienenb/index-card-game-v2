@@ -6,7 +6,7 @@ class CardIdComponent : ImmutableDataStoringComponent<Int>(generateId()) {
     fun getId(): Int = value
 
     companion object {
-        var currentId: Int = 0
+        private var currentId: Int = 0
         fun generateId(): Int = ++currentId
     }
 }

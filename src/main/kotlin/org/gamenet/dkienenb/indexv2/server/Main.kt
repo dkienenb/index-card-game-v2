@@ -72,7 +72,7 @@ object Main {
         while (players.size > 1) {
             currentFirstPlayer = nextPlayer(players, currentFirstPlayer)
             roundOfTurns(currentFirstPlayer, players)
-            players = players.filterNot { it.isOut() }
+            players = players.filterNot(Player::isOut)
         }
     }
 
@@ -96,6 +96,6 @@ object Main {
                 nextPlayer.takeTurn(players)
             }
             nextPlayer = nextPlayer(players, nextPlayer)
-        } while ((nextPlayer != firstPlayer) && (players.filterNot { it.isOut() }.size > 1))
+        } while ((nextPlayer != firstPlayer) && (players.filterNot(Player::isOut).size > 1))
     }
 }

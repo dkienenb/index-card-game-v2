@@ -30,10 +30,18 @@ data class MoneyDieMessage(val money: Int): Message() {
     override fun toStringMessage(): String = "Money die result is $money."
 }
 
-data class CardPlayedMessage(val cardId: Int, val cardName: String,
-                             val health: Int, val damage: Int, val defense: Int, val playerId: Int): Message() {
+data class FightingCardPlayedMessage(val cardId: Int, val cardName: String,
+                                     val health: Int, val damage: Int, val defense: Int, val playerId: Int, val placedBefore: Int?): Message() {
     override fun toStringMessage(): String = "Player #${playerId} plays a $cardName (Health: $health, " +
-            "Damage: $damage, Defense $defense) with id $cardId."
+            "Damage: $damage, Defense $defense) with id $cardId. ${placedBefore?.let { " It was placed before $it." } ?: ""}"
+}
+
+data class CardMovedMessage(val cardId: Int, val placedBefore: Int?): Message() {
+    override fun toStringMessage(): String = "Card with id $cardId was moved to before $placedBefore."
+}
+
+data class CardPlayedMessage(val playerId: Int, val cardName: String) : Message() {
+    override fun toStringMessage(): String = "Player #${playerId} plays a $cardName."
 }
 
 data class CardDeathMessage(val cardId: Int): Message() {
@@ -50,18 +58,28 @@ data class DrawCardMessage(val playerId: Int): Message() {
 }
 
 data class StealCardMessage(val aggressorId: Int, val victimId: Int): Message() {
-    override fun toStringMessage(): String = "Player #${aggressorId} steals a card from ${victimId}'s deck!"
+    override fun toStringMessage(): String = "Player #${aggressorId} steals a card from #${victimId}'s deck!"
 }
 
 data class TurnStartMessage(val playerId: Int, val playerName: String): Message() {
-    override fun toStringMessage(): String = "Turn start: Player #${playerId} (named $playerName)"
-
+    override fun toStringMessage(): String = "Turn start: Player #${playerId} (named $playerName)."
 }
 
 data class TurnEndMessage(val playerId: Int, val playerName: String): Message() {
-    override fun toStringMessage(): String = "Turn end: Player #${playerId} (named $playerName)"
+    override fun toStringMessage(): String = "Turn end: Player #${playerId} (named $playerName)."
 }
 
 data class NowAttackingWithMessage(val cardId: Int): Message() {
     override fun toStringMessage(): String = "Now attacking with card with id $cardId!"
+}
+
+data class StatusEffectInflictedMessage(val cardId: Int, val statusEffectName: String,
+                                        val statusEffectDuration: Int, val potency: Int, val newEffect: Boolean = true): Message() {
+    override fun toStringMessage(): String {
+        return if (newEffect) {
+            "Card with id $cardId now has $statusEffectDuration $statusEffectName (Potency level $potency)."
+        } else {
+            "Card with id $cardId's $statusEffectName ticks to $statusEffectDuration."
+        }
+    }
 }

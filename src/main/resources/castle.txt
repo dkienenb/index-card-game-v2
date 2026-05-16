@@ -57,4 +57,4 @@
 5/1 "aviator's guild" flying to all fighting cards
 
 // one shot
-6 "master theif" put a card from any player's discard pile into your hand
+6 "master thief" put a card from any player's discard pile into your hand

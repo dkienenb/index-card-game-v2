@@ -2,26 +2,40 @@ package org.gamenet.dkienenb.indexv2.server.status
 
 import org.gamenet.dkienenb.component.ComponentedObject
 import org.gamenet.dkienenb.component.ListStoringComponent
+import org.gamenet.dkienenb.indexv2.client.message.StatusEffectInflictedMessage
+import org.gamenet.dkienenb.indexv2.server.Main
+import org.gamenet.dkienenb.indexv2.server.card.CardIdComponent
 
 class StatusEffectComponent : ListStoringComponent<StatusEffectInstance>() {
 
-    fun applyStatusEffect(duration: Int, statusEffect: StatusEffect, inflictor: ComponentedObject?) {
-        // TODO stackable effects
-        val instance = StatusEffectInstance(statusEffect, duration, attached, inflictor)
-        value.add(instance)
-        instance.apply()
+    fun applyStatusEffect(potency: Int, duration: Int, statusEffect: StatusEffect, inflictor: ComponentedObject?) {
+        val id = attached.getComponent(CardIdComponent::class.java).getId()
+        if (statusEffect.combinesWithExistingStacks) {
+            val instance
+        } else {
+            val instance = StatusEffectInstance(statusEffect, potency, duration, attached, inflictor)
+            value.add(instance)
+            instance.apply()
+            Main.sendMessageToAll(StatusEffectInflictedMessage(id, statusEffect.name, duration, potency))
+        }
     }
 
-    fun tick() = stream().forEach { it.tick() }
+    fun tick() {
+        value.removeAll {
+            it.duration <= 0
+        }
+        value.forEach(StatusEffectInstance::tick)
+    }
     fun hasAll(prerequisiteEffects: List<StatusEffect>): Boolean {
         prerequisiteEffects.forEach { effect ->
             if (!has(effect)) {
-                return false
+                return@hasAll false
             }
         }
         return true
     }
 
     fun has(effect: StatusEffect) = value.any { it.effect == effect }
+    fun clearAllStatuses() = value.clear()
 
 }

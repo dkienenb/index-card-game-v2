@@ -10,7 +10,7 @@ abstract class ReactiveComponent<T> : ListStoringComponent<(ComponentedObject, T
     }
 
     protected fun trigger(trigger: T) {
-        stream().forEach { consumer ->
+        value.forEach { consumer ->
             consumer.invoke(attached, trigger)
         }
     }

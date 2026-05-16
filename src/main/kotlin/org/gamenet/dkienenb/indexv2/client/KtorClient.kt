@@ -6,7 +6,7 @@ data class ClientCardView(
     val cardId: Int,
     val cardName: String,
     val playerId: Int,
-    val currentHealth: Int,
+    var currentHealth: Int,
     val maxHealth: Int
 )
 
@@ -18,16 +18,16 @@ data class ClientPlayerView(
     val playerHandSize: Int
 )
 
-class KtorClient(val token: String, val server: KtorServer) : Client() {
+class KtorClient(private val token: String, val server: KtorServer) : Client() {
 
     var deckSize = 0
     var remainingMoney = 0
     var moneyDieResult = 0
-    var cardsInPlay = listOf<ClientCardView>()
+    private var cardsInPlay = mutableListOf<ClientCardView>()
     var players: List<ClientPlayerView> = listOf()
     var currentPlayer: String = ""
     var messageHistory = mutableListOf<String>()
-    var attackingWith: Int? = null
+    private var attackingWith: Int? = null
 
     override fun displayMessage(message: String) {
         server.modifySession(token) {
@@ -38,15 +38,7 @@ class KtorClient(val token: String, val server: KtorServer) : Client() {
         }
     }
 
-    fun modifyCard(cardId: Int, modifier: (ClientCardView) -> ClientCardView) {
-        val oldCard = cardsInPlay.firstOrNull { it.cardId == cardId }
-        if (oldCard != null) {
-            val newPlayer = modifier(oldCard)
-            cardsInPlay = cardsInPlay.filter { it.cardId != cardId } + newPlayer
-        }
-    }
-
-    fun modifyPlayer(playerId: Int, modifier: (ClientPlayerView) -> ClientPlayerView) {
+    private fun modifyPlayer(playerId: Int, modifier: (ClientPlayerView) -> ClientPlayerView) {
         val oldPlayer = players.firstOrNull { it.playerId == playerId }
         if (oldPlayer != null) {
             val newPlayer = modifier(oldPlayer)
@@ -66,20 +58,40 @@ class KtorClient(val token: String, val server: KtorServer) : Client() {
             is MoneyDieMessage -> {
                 moneyDieResult = message.money
             }
+            is CardMovedMessage -> {
+                val card = cardsInPlay.first{it.cardId == message.cardId}
+                cardsInPlay.remove(card)
+                if (message.placedBefore != null) {
+                    val indexOfBefore = cardsInPlay.indexOfFirst { it.cardId == message.placedBefore }
+                    cardsInPlay.add(indexOfBefore, card)
+                } else {
+                    cardsInPlay.add(card)
+                }
+            }
+            is FightingCardPlayedMessage -> {
+                val newCard = ClientCardView(message.cardId, message.cardName, message.playerId, message.health, message.health)
+                if (message.placedBefore != null) {
+                    val indexOfBefore = cardsInPlay.indexOfFirst { it.cardId == message.placedBefore }
+                    cardsInPlay.add(indexOfBefore, newCard)
+                } else {
+                    cardsInPlay.add(newCard)
+                }
+                modifyPlayer(message.playerId) {
+                    ClientPlayerView(it.playerId, it.playerName, it.playerDeckType, it.playerDeckSize, it.playerHandSize - 1)
+                }
+            }
             is CardPlayedMessage -> {
-                cardsInPlay += ClientCardView(message.cardId, message.cardName, message.playerId, message.health, message.health)
                 modifyPlayer(message.playerId) {
                     ClientPlayerView(it.playerId, it.playerName, it.playerDeckType, it.playerDeckSize, it.playerHandSize - 1)
                 }
             }
             is CardHealthChangedMessage -> {
-                modifyCard(message.cardId) {
-                    ClientCardView(it.cardId, it.cardName, it.playerId, message.newHealth, it.maxHealth)
-                }
+                val card = cardsInPlay.firstOrNull { message.cardId == it.cardId }
+                card?.currentHealth = message.newHealth
             }
             is CardDeathMessage -> {
                 val id = message.cardId
-                cardsInPlay = cardsInPlay.filter { id != it.cardId }
+                cardsInPlay.removeAll { id == it.cardId }
             }
             is PlayerInfoMessage -> {
                 players += ClientPlayerView(message.playerId, message.playerName, message.deckType, message.deckSize, 0)
@@ -145,6 +157,9 @@ class KtorClient(val token: String, val server: KtorServer) : Client() {
         select("Choose a ${choiceLabel}:", options)
 
     private fun select(choiceMessage: String, options: Set<String>): String {
+        if (getName() == "// gaming" && options.size == 1) {
+            return options.first()
+        }
         val optionsList = options.toList()
         server.modifySession(token) {
             UserSession(

@@ -3,8 +3,9 @@
     <option name="myName" value="Project Default" />
     <inspection_tool class="AddOperatorModifier" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="ConvertCallChainIntoSequence" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
-    <inspection_tool class="ConvertLambdaToReference" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES" />
-    <inspection_tool class="ConvertReferenceToLambda" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="ConvertLambdaToReference" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="ConvertPairConstructorToToFunction" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="ConvertReferenceToLambda" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES" />
     <inspection_tool class="ConvertTryFinallyToUseCall" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="FunctionWithLambdaExpressionBody" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="IfThenToElvis" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
@@ -15,7 +16,7 @@
     <inspection_tool class="LiftReturnOrAssignment" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="LoopToCallChain" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="MapGetWithNotNullAssertionOperator" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
-    <inspection_tool class="MemberVisibilityCanBePrivate" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES" />
+    <inspection_tool class="MemberVisibilityCanBePrivate" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="NoConstructorMigration" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="NonExhaustiveWhenStatementMigration" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ObsoleteKotlinJsPackages" enabled="true" level="ERROR" enabled_by_default="true" />
@@ -23,6 +24,7 @@
     <inspection_tool class="ProtectedInFinal" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="RedundantElseInIf" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="RedundantNotNullExtensionReceiverOfInline" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="RedundantObjectTypeCheck" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
     <inspection_tool class="ReplaceArrayOfWithLiteral" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="ReplaceAssertBooleanWithAssertEquality" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="ReplaceAssociateFunction" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
@@ -30,16 +32,27 @@
     <inspection_tool class="ReplaceGetOrSet" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="ReplaceGuardClauseWithFunctionCall" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="ReplaceNegatedIsEmptyWithIsNotEmpty" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="ReplaceNotNullAssertionWithElvisReturn" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
+    <inspection_tool class="ReplaceStringFormatWithLiteral" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="ReplaceSubstringWithDropLast" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="ReplaceSubstringWithIndexingOperation" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="ReplaceSubstringWithSubstringAfter" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="ReplaceSubstringWithSubstringBefore" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="ReplaceSubstringWithTake" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="ReplaceToStringWithStringTemplate" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+    <inspection_tool class="ReplaceUntilWithRangeUntil" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
     <inspection_tool class="ReplaceWithOperatorAssignment" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="SafeCastWithReturn" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="ScopeFunctionConversion" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
     <inspection_tool class="SimplifiableCall" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="SimplifiableCallChain" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="SimplifyAssertNotNull" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="SimplifyBooleanWithConstants" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="SimplifyNegatedBinaryExpression" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
+    <inspection_tool class="UnlabeledReturnInsideLambda" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
     <inspection_tool class="UnusedMainParameter" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
     <inspection_tool class="UseExpressionBody" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
-    <inspection_tool class="UsePropertyAccessSyntax" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES" />
+    <inspection_tool class="UsePropertyAccessSyntax" enabled="true" level="WARNING" enabled_by_default="true" editorAttributes="WARNING_ATTRIBUTES" />
     <inspection_tool class="WarningOnMainUnusedParameterMigration" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
     <inspection_tool class="WhenWithOnlyElse" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
   </profile>

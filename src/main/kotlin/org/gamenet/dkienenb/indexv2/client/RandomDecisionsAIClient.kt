@@ -5,9 +5,9 @@ import org.gamenet.dkienenb.indexv2.client.message.Message
 import org.gamenet.dkienenb.indexv2.client.message.YesOrNoQuestionType
 import kotlin.random.Random
 
-class RandomDecisionsAIClient(val displayName: String) : Client() {
+class RandomDecisionsAIClient(private val displayName: String) : Client() {
 
-    var outOfCards = false
+    private var outOfCards = false
 
     override fun displayMessage(message: String) {}
     override fun displayMessage(message: Message) {

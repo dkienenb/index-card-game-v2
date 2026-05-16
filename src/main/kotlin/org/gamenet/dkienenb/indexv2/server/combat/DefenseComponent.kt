@@ -4,9 +4,6 @@ import org.gamenet.dkienenb.indexv2.server.ModifiedIntComponent
 
 class DefenseComponent(defense: Int) : ModifiedIntComponent(defense) {
 
-    fun getDefense(): Int = value
+    fun getDefense(): Int = getValue()
 
-    fun setDefense(defense: Int) {
-        value = defense
-    }
 }

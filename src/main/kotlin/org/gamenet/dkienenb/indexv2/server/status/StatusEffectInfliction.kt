@@ -40,6 +40,7 @@ class StatusEffectInfliction(
     val inflictionScope: StatusEffectInflictionScope,
     val inflictionAllyState: StatusEffectInflictionAllyState,
     val duration: Int,
+    val potency: Int,
     val effect: StatusEffect,
     val prerequisiteEffects: List<StatusEffect>,
 )
@@ -48,9 +49,7 @@ class StatusEffectInflictorComponent : ListStoringComponent<StatusEffectInflicti
     fun addInfliction(infliction: StatusEffectInfliction) {
         checkNotNull(attached) { "Not attached yet! Attach inflictor component, then add inflictions." }
         value.add(infliction)
-        addHooks(infliction) {
-            Main.players
-        }
+        addHooks(infliction, Main::players)
     }
 
     private fun inflictScopedCheckingAllyStateAndPrerequisiteEffects(infliction: StatusEffectInfliction, target: ComponentedObject, allPlayersSupplier: () -> List<Player>) {
@@ -103,7 +102,7 @@ class StatusEffectInflictorComponent : ListStoringComponent<StatusEffectInflicti
         if (target.hasComponent(StatusEffectComponent::class.java)) {
             if (target.getComponent(StatusEffectComponent::class.java).hasAll(infliction.prerequisiteEffects)) {
                 target.getComponent(StatusEffectComponent::class.java)
-                    .applyStatusEffect(infliction.duration, infliction.effect, attached)
+                    .applyStatusEffect(infliction.potency, infliction.duration, infliction.effect, attached)
             }
         }
     }

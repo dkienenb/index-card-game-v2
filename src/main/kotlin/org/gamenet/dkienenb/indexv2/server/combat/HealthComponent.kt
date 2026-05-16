@@ -7,11 +7,14 @@ import org.gamenet.dkienenb.indexv2.server.ModifiedIntComponent
 import org.gamenet.dkienenb.indexv2.server.card.CardIdComponent
 
 class HealthComponent : ModifiedIntComponent(0) {
+
+    var temporaryHealth = 0
+
     override fun onAdd() {
         setHealth(attached.getComponent(MaxHealthComponent::class.java).getMaxHealth())
     }
 
-    fun getHealth(): Int = value
+    fun getHealth(): Int = getValue()
 
     fun setHealth(health: Int) {
         var newHealth = health
@@ -32,11 +35,16 @@ class HealthComponent : ModifiedIntComponent(0) {
                 )
             )
         }
-        value = newHealth
+        value = health
     }
 
     fun changeHealth(change: Int) {
-        setHealth(getHealth() + change)
+        var delta = change
+        while (delta > 0 && temporaryHealth > 0) {
+            delta--
+            temporaryHealth--
+        }
+        setHealth(getHealth() + delta)
     }
 
     override fun getDependencies(): MutableList<Class<out Component>> {

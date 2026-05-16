@@ -6,6 +6,7 @@ import org.gamenet.dkienenb.component.ListStoringComponent
 import org.gamenet.dkienenb.indexv2.client.message.PlayerLossMessage
 import org.gamenet.dkienenb.indexv2.client.message.StealCardMessage
 import org.gamenet.dkienenb.indexv2.server.Main
+import org.gamenet.dkienenb.indexv2.server.OverrideValueModifier
 import org.gamenet.dkienenb.indexv2.server.Player
 import org.gamenet.dkienenb.indexv2.server.card.Card
 import org.gamenet.dkienenb.indexv2.server.card.NameComponent
@@ -59,17 +60,13 @@ class DeckComponent(val type: DeckType, player: Player) : ListStoringComponent<C
             val player = it.getComponent(PlayerOwnedComponent::class.java).getPlayer()
             Main.sendMessageToAll(PlayerLossMessage(player.id))
         }
-        recalculateHealth()
+        attached.getComponent(HealthComponent::class.java).addModifier(OverrideValueModifier(value::size))
     }
 
     private fun removeFirstCard(): Card = value.removeAt(0)
-    private fun recalculateHealth() {
-        attached.getComponent(HealthComponent::class.java).setHealth(value.size)
-    }
 
     fun drawCard(): Card {
         val firstCard = removeFirstCard()
-        recalculateHealth()
         return firstCard
     }
 
@@ -81,12 +78,10 @@ class DeckComponent(val type: DeckType, player: Player) : ListStoringComponent<C
 
     fun topDeckCard(card: Card) {
         value.addFirst(card)
-        recalculateHealth()
     }
 
     fun bottomDeckCard(card: Card) {
         value.addLast(card)
-        recalculateHealth()
     }
 
     fun discardCard(card: Card) {
@@ -95,5 +90,11 @@ class DeckComponent(val type: DeckType, player: Player) : ListStoringComponent<C
 
     fun shuffle() = value.shuffle()
     fun isEmpty(): Boolean = value.isEmpty()
+    fun cardNames() = value.map { it.getComponent(NameComponent::class.java).getName() }
 
+    fun seekOut(cardName: String): Card {
+        val card = value.first { it.getComponent(NameComponent::class.java).getName() == cardName }
+        value.remove(card)
+        return card
+    }
 }

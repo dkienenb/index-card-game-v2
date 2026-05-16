@@ -20,7 +20,7 @@ abstract class ModifiedIntComponent(value: Int) : MutableDataStoringComponent<In
     }
 
     final override fun getValue(): Int {
-        var current = value
+        var current = super.getValue()
         modifiers.forEach {
             if (it.active()) {
                 current = it.modify(current)
@@ -35,4 +35,16 @@ abstract class Modifier {
     abstract fun stillValid(): Boolean
     abstract fun active(): Boolean
     abstract fun modify(current: Int): Int
+}
+
+class ConstantBonusModifier(private val constant: Int) : Modifier() {
+    override fun stillValid(): Boolean = true
+    override fun active() = true
+    override fun modify(current: Int) = (current + constant)
+}
+
+class OverrideValueModifier(val supplier: () -> Int) : Modifier() {
+    override fun stillValid() = true
+    override fun active() = true
+    override fun modify(current: Int): Int = supplier()
 }

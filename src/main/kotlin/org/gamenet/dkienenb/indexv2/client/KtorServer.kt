@@ -39,19 +39,19 @@ class KtorServer {
             val oldSession = sessions[token]
             if (oldSession != null) {
                 val newSession = modifier(oldSession)
-                sessions = sessions - token + Pair(token, newSession)
+                sessions = sessions - token + (token to newSession)
             }
         }
     }
 
     fun addClient(token: String): KtorClient {
         val client = KtorClient(token, this)
-        clients += Pair(token, client)
-        sessions += Pair(token, UserSession(token))
+        clients += token to client
+        sessions += token to UserSession(token)
         return client
     }
 
-    fun Application.module() {
+    private fun Application.module() {
         install(Sessions) {
             val secretSignKey = hex("96202d627ba9409eabccc91b278e")
             cookie<UserSession>("USER_SESSION", SessionStorageMemory()) {
@@ -128,11 +128,10 @@ class KtorServer {
                                             "${player.playerName} - ${player.playerDeckType} Deck: ${player.playerDeckSize} cards, Hand: ${player.playerHandSize}"
                                         h3 { +message }
                                         h4 { +"--- Front of line ---" }
-                                        for (card in client.getBattleLine(player.playerId)) {
-                                            val cardAsText =
-                                                "${card.cardName} - ${card.currentHealth}/${card.maxHealth}"
-                                            div { +cardAsText }
-                                        }
+                                        client.getBattleLine(player.playerId)
+                                            .asSequence()
+                                            .map { "${it.cardName} - ${it.currentHealth}/${it.maxHealth}" }
+                                            .forEach { div { +it } }
                                         h4 { +"--- Back of line ---" }
                                     }
                                     if (session.messageBacklog.isNotEmpty()) {

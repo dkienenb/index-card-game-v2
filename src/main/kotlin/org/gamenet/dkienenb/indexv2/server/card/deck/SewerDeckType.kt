@@ -11,7 +11,7 @@ public class SewerDeckType : DeckType("Sewers") {
     val ratTypeInfliction = generateSelfInfliction(1, CreatureTypes.RAT)
     val slimeTypeInfliction = generateSelfInfliction(1, CreatureTypes.SLIME)
 
-    val spikedRevengeInfliction = generateOnKilledInfliction(1, 1, StatusEffects.SPIKES)
+    val spikedRevengeInfliction = generateOnKilledInfliction(1, 1, StatusEffects.SPIKED)
 
     override fun getInitialCardList(player: Player): List<Card> {
         return listOf(

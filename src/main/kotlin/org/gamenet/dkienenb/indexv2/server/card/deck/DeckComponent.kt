@@ -12,6 +12,7 @@ import org.gamenet.dkienenb.indexv2.server.card.Card
 import org.gamenet.dkienenb.indexv2.server.card.NameComponent
 import org.gamenet.dkienenb.indexv2.server.card.OriginalPlayerOwnedComponent
 import org.gamenet.dkienenb.indexv2.server.card.PlayerOwnedComponent
+import org.gamenet.dkienenb.indexv2.server.card.PurchasableComponent
 import org.gamenet.dkienenb.indexv2.server.combat.HealthComponent
 import org.gamenet.dkienenb.indexv2.server.combat.MaxHealthComponent
 import org.gamenet.dkienenb.indexv2.server.combat.MortalComponent
@@ -99,7 +100,17 @@ public class DeckComponent(val type: DeckType, player: Player) : ListStoringComp
 
     fun discardCard(card: Card) {
         discardPile.add(card)
-        updateHealth()
+    }
+
+    fun listDicardsCostingLessThan(tooHigh: Int): List<Card> {
+        return discardPile.filter {
+            it.hasComponent(PurchasableComponent::class.java)
+                    && it.getComponent(PurchasableComponent::class.java).getCost() < tooHigh
+        }
+    }
+
+    fun removeFromDiscard(card: Card) {
+        discardPile.remove(card)
     }
 
     fun shuffle() = value.shuffle()

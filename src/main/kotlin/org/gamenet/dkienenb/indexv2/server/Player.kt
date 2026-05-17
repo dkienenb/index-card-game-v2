@@ -242,14 +242,25 @@ public class Player(val client: Client, val id: Int) {
 
     private fun selectOneCardToPlay(): Card? {
         client.displayMessage(MoneyRemainderMessage(unspentMoney))
-        val cardToNameMap = hand.associateBy {
-            "(${it.getComponent(PurchasableComponent::class.java).getCost()}) " +
-                    "${it.getComponent(NameComponent::class.java).getName()} " +
-                    "[${it.getComponent(CardIdComponent::class.java).getId()}]"
-        }.plus("No card" to null)
-        val chosen = client.makeChoice("card to play", cardToNameMap.keys)
+        val cards = hand
+        val verb = "play"
+        return clientSelectCardOrNoCard(cards, verb)
+    }
+
+    private fun clientSelectCardInternal(cards: List<Card>, verb: String, allowNoCard: Boolean): Card? {
+        val cardToNameMap = cards.associateBy {
+            val cost = it.getComponent(PurchasableComponent::class.java).getCost()
+            val name = it.getComponent(NameComponent::class.java).getName()
+            val id = it.getComponent(CardIdComponent::class.java).getId()
+            "($cost) $name [$id]"
+        }.let { if (allowNoCard) it + ("No card" to null) else it }
+
+        val chosen = client.makeChoice("card to $verb", cardToNameMap.keys)
         return cardToNameMap[chosen]
     }
+
+    fun clientSelectCardOrNoCard(cards: List<Card>, verb: String): Card? = clientSelectCardInternal(cards, verb, allowNoCard = true)
+    fun clientSelectCard(cards: List<Card>, verb: String): Card = clientSelectCardInternal(cards, verb, allowNoCard = false)!!
 
     private fun drawCards(players: List<Player>) {
         while (hand.size < NORMAL_DRAW_BANNED_AT) {

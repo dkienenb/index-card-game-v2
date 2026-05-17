@@ -10,7 +10,7 @@ public class StatusEffectComponent : ListStoringComponent<StatusEffectInstance>(
 
     fun applyStatusEffect(potency: Int, duration: Int, statusEffect: StatusEffect, inflictor: ComponentedObject?) {
         val id = attached.getComponent(CardIdComponent::class.java).getId()
-        if (statusEffect.stacksDuration && has(statusEffect, potency)) {
+        if (statusEffect.combineStackDurations && has(statusEffect, potency)) {
             val instance = value.first { it.effect == statusEffect && it.potency == potency }
             instance.duration = instance.duration + duration
             instance.apply()

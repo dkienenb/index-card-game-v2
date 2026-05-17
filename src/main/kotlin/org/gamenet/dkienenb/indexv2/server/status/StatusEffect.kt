@@ -38,7 +38,7 @@ public enum class StatusEffectCategory {
     INNATE
 }
 
-public abstract class StatusEffect(val category: StatusEffectCategory, val name: String, val stacksDuration: Boolean) {
+public abstract class StatusEffect(val category: StatusEffectCategory, val name: String, val combineStackDurations: Boolean) {
 
     open fun onApply(potency: Int, currentDuration: Int, victim: ComponentedObject, inflictor: ComponentedObject?) = Unit
     open fun onExpire(potency: Int, victim: ComponentedObject, inflictor: ComponentedObject?) = Unit

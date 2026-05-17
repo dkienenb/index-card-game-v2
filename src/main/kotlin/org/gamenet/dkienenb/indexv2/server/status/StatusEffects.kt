@@ -1,22 +1,46 @@
 package org.gamenet.dkienenb.indexv2.server.status
 
 import org.gamenet.dkienenb.component.ComponentedObject
+import org.gamenet.dkienenb.indexv2.server.card.PlayerOwnedComponent
+import org.gamenet.dkienenb.indexv2.server.card.PurchasableComponent
+import org.gamenet.dkienenb.indexv2.server.card.deck.DeckComponent
 import org.gamenet.dkienenb.indexv2.server.combat.HealthComponent
+import org.gamenet.dkienenb.indexv2.server.combat.MortalComponent
 
 public class StatusEffects {
     companion object {
         val BURNING = BurningDebuff()
+        val SPIKED = InstantDamageDebuff("Spiked")
+
         val FLYING = FlyingBuff()
         val WALL = WallBuff()
         val PIERCING = ArmorPiercingBuff()
         val NO_RETALIATION = NoRetaliationBuff()
         val PLATED_ARMOR = PlatedArmorBuff()
-        val SPIKES = InstantDamageDebuff("Spikes")
+        val GOOPY = GoopyBuff()
+    }
+}
+
+public class GoopyBuff: StatusEffect(StatusEffectCategory.BUFF, "Goopy", false) {
+    override fun onTick(potency: Int, currentDuration: Int, victim: ComponentedObject, inflictor: ComponentedObject?) {}
+    override fun onApply(potency: Int, currentDuration: Int, victim: ComponentedObject, inflictor: ComponentedObject?) {
+        victim.getComponent(MortalComponent::class.java).addDeathEffect { it, _ ->
+            if (it.getComponent(StatusEffectComponent::class.java).has(StatusEffects.GOOPY)) {
+                val cost = it.getComponent(PurchasableComponent::class.java).getCost()
+                val player = it.getComponent(PlayerOwnedComponent::class.java).getPlayer()
+                val deck = player.deck.getComponent(DeckComponent::class.java)
+                val cardOptions = deck.listDicardsCostingLessThan(cost)
+                val chosen = player.clientSelectCardOrNoCard(cardOptions, "retrieve via Goopy")
+                if (chosen != null) {
+                    deck.removeFromDiscard(chosen)
+                    player.addCard(chosen)
+                }
+            }
+        }
     }
 }
 
 public class PlatedArmorBuff: StatusEffect(StatusEffectCategory.BUFF, "Block", true) {
-
     override fun onApply(potency: Int, currentDuration: Int, victim: ComponentedObject, inflictor: ComponentedObject?) {
         victim.getComponent(HealthComponent::class.java).temporaryHealth = potency
     }

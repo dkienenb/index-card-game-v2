@@ -26,8 +26,10 @@ public class TargetComponent : ReactiveComponent<Pair<ComponentedObject, Int>>()
             damage - attached.getComponent(DefenseComponent::class.java).getDefense()
         }
         val reasonableDamage = if (actualDamage < 0) {0} else {actualDamage}
+        attached.getComponent(MortalComponent::class.java).combatTag = attacker
         trigger(attacker to damage)
         attached.getComponent(HealthComponent::class.java).changeHealth(-reasonableDamage)
+        attached.getComponent(MortalComponent::class.java).combatTag = null
         if (hasRetaliation) {
             if (attached.getComponent(MortalComponent::class.java).isLiving()) {
                 if (attached.hasComponent(AttackerComponent::class.java)) {
@@ -48,6 +50,7 @@ public class TargetComponent : ReactiveComponent<Pair<ComponentedObject, Int>>()
         list.add(DefenseComponent::class.java)
         list.add(PurchasableComponent::class.java)
         list.add(NameComponent::class.java)
+        list.add(MortalComponent::class.java)
         return list
     }
 

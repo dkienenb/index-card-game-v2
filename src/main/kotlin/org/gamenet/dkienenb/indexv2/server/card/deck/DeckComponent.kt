@@ -22,13 +22,16 @@ public class DeckComponent(val type: DeckType, player: Player) : ListStoringComp
     private val discardPile: MutableList<Card> = ArrayList()
 
     init {
-        value.addAll(type.initialCardList(player))
+        value.addAll(type.getInitialCardList(player))
     }
 
     override fun getDependencies(): MutableList<Class<out Component>> {
         val list = super.getDependencies()
         list.add(TargetComponent::class.java)
         list.add(OriginalPlayerOwnedComponent::class.java)
+        list.add(HealthComponent::class.java)
+        list.add(MortalComponent::class.java)
+        list.add(MaxHealthComponent::class.java)
         return list
     }
 
@@ -63,7 +66,15 @@ public class DeckComponent(val type: DeckType, player: Player) : ListStoringComp
         attached.getComponent(HealthComponent::class.java).addModifier(OverrideValueModifier(value::size))
     }
 
-    private fun removeFirstCard(): Card = value.removeAt(0)
+    private fun removeFirstCard(): Card {
+        val card = value.removeAt(0)
+        updateHealth()
+        return card
+    }
+
+    private fun updateHealth() {
+        attached.getComponent(HealthComponent::class.java).setHealth(value.size)
+    }
 
     fun drawCard(): Card {
         val firstCard = removeFirstCard()
@@ -78,14 +89,17 @@ public class DeckComponent(val type: DeckType, player: Player) : ListStoringComp
 
     fun topDeckCard(card: Card) {
         value.addFirst(card)
+        updateHealth()
     }
 
     fun bottomDeckCard(card: Card) {
         value.addLast(card)
+        updateHealth()
     }
 
     fun discardCard(card: Card) {
         discardPile.add(card)
+        updateHealth()
     }
 
     fun shuffle() = value.shuffle()
@@ -95,6 +109,7 @@ public class DeckComponent(val type: DeckType, player: Player) : ListStoringComp
     fun seekOut(cardName: String): Card {
         val card = value.first { it.getComponent(NameComponent::class.java).getName() == cardName }
         value.remove(card)
+        updateHealth()
         return card
     }
 }

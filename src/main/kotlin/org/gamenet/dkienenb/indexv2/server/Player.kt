@@ -29,7 +29,7 @@ public class Player(val client: Client, val id: Int) {
     }
 
     private fun askClientForDeckType(): DeckType =
-        clientChoice("deck type", DeckType.values().toList(), DeckType::typeName)
+        clientChoice("deck type", DeckType.registry, DeckType::name)
 
     fun takeTurn(players: List<Player>) {
         Main.sendMessageToAll(TurnStartMessage(id, client.getName()))

@@ -16,7 +16,7 @@ public class Deck(player: Player, deckType: DeckType) : ComponentedObject() {
         addComponent(HealthComponent())
         addComponent(DefenseComponent(0))
         addComponent(PurchasableComponent(0))
-        addComponent(NameComponent("${deckType.typeName} Deck"))
+        addComponent(NameComponent("${deckType.name} Deck"))
         addComponent(TargetComponent())
         addComponent(OriginalPlayerOwnedComponent(player))
         addComponent(PlayerOwnedComponent(player))

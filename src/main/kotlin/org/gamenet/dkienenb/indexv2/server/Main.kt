@@ -5,6 +5,7 @@ import org.gamenet.dkienenb.event.EventListener
 import org.gamenet.dkienenb.event.EventListenerPriorityLevel
 import org.gamenet.dkienenb.indexv2.client.Client
 import org.gamenet.dkienenb.indexv2.client.KtorServer
+import org.gamenet.dkienenb.indexv2.client.LocalCLIClient
 import org.gamenet.dkienenb.indexv2.client.RandomDecisionsAIClient
 import org.gamenet.dkienenb.indexv2.client.message.Message
 import org.gamenet.dkienenb.indexv2.client.message.MoneyDieMessage
@@ -57,14 +58,15 @@ public object Main {
     fun main(args: Array<String>) {
         players = listOf(
             Player(prepare(ktorServer.addClient("butter")), 1),
-            Player(prepare(ktorServer.addClient("spark")), 2),
-            Player(prepare(RandomDecisionsAIClient("BillyBob")), 4),
-            Player(prepare(RandomDecisionsAIClient("Hal")), 5),
+            // Player(prepare(ktorServer.addClient("spark")), 2),
+            Player(prepare(LocalCLIClient()), 3)
+            //Player(prepare(RandomDecisionsAIClient("BillyBob")), 4),
+            //Player(prepare(RandomDecisionsAIClient("Hal")), 5),
         )
         for (player in players) {
             sendMessageToAll(
                 PlayerInfoMessage(player.id, player.client.getName(),
-                    player.deck.getComponent(DeckComponent::class.java).type.typeName,
+                    player.deck.getComponent(DeckComponent::class.java).type.name,
                     player.deck.getComponent(HealthComponent::class.java).getHealth())
             )
         }
